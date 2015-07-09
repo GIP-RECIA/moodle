@@ -38,6 +38,16 @@ if ($SITE->id == $course->id || !can_delete_course($id)) {
     print_error('cannotdeletecourse');
 }
 
+////////////////////////////////////////////////
+// MODIFICATION RECIA | DEBUT | 2015-02-18
+////////////////////////////////////////////////
+if (! strncmp($course->idnumber,"ZONE-PRIVEE", strlen("ZONE-PRIVEE")) ){
+	print_error('cannotdeletecourse');
+}
+////////////////////////////////////////////////
+// MODIFICATION RECIA | FIN
+////////////////////////////////////////////////
+
 $categorycontext = context_coursecat::instance($course->category);
 $PAGE->set_url('/course/delete.php', array('id' => $id));
 $PAGE->set_context($categorycontext);

@@ -1,0 +1,209 @@
+html, body, form.wirisform {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    width: 100%;
+}
+div.wiristabs div.wiristabsleftcolumn {
+    background-color: #e0e0e0;
+    float: left;
+    width: 160px;
+}
+div.wiristabs div.wiristabcontentwrapper {
+    background-color: #e0e0e0;
+    height: 100%;
+    margin-left: 160px;
+}
+div.wiristabs {
+    background-color: #e0e0e0;
+    bottom: 50px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+div.wirissubmitbuttons {
+    background-color: #e0e0e0;
+    bottom: 0;
+    height: 50px;
+    position: absolute;
+    width: 100%;
+}
+div.wirissubmitbuttonswrapper {
+    padding: 10px;
+}
+div.wiristabs div.wiristabcontent {
+    background-color: #fff;
+    bottom: 0px;
+    left: 160px;
+    overflow: auto;
+    padding: 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-radius: 8px;
+    border: solid 1px #999;
+}
+div.wiristabs div.wirisalgorithmlanguage {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+div.wiristabs div.wiriscaswrapper {
+    bottom: 165px;
+    left: 10px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+div.wiristabs div.wiriscasbottomwrapper {
+    bottom: 0px;
+    left: 10px;
+    position: absolute;
+    right: 10px;
+}
+div.wiristabs div.wiriseditorwrapper {
+    height: 300px;
+    width: 500px;
+    margin-bottom: 5px;
+}
+div.wiristabs div.wirishidden {
+    display: none;
+}
+div.wiristabs div.wirisselected {
+    display: block;
+}
+div.wiristabs ul.wiristablist {
+    margin: 10px 0 10px 10px;
+    padding: 0;
+}
+
+div.wiristabs li.wiristab {
+    width: 100%;
+}
+div.wiristabs a.wiristablink {
+    display: inline-block;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-top: 5px;
+    width: 139px;
+    border-top-left-radius:  8px;
+    border-bottom-left-radius: 8px;
+    border: solid 1px #999;
+    margin-bottom:  1px;
+    background-color: #ccc;
+}
+div.wiristabs a.wiristablink:hover, div.wiristabs a.wiristablink.wirisselected {
+    background-color: #fff;
+}
+a.wirishelp {
+    background: url("manual.png") no-repeat scroll left top transparent;
+    display: block;
+    height: 17px;
+    margin: 0;
+    width: 17px;
+}
+div.wiristabs fieldset.wirisfieldset {
+    border: solid 1px;
+    border-radius:  8px;
+    border-color:  #999;
+    margin-bottom: 10px;
+}
+span.wirishelp {
+    float: right;
+}
+div.wiristabs {
+}
+div.wiristabs ul {
+    margin:  0;
+    padding: 0;
+    list-style: none outside none;
+}
+div.wiristabs ul.wirisinputcontrolslist {
+    margin-bottom:  10px;
+}
+div.wiristabs {
+    font-family: Segoe UI,Arial,Helvetica,sans-serif;
+    font-size: 11pt;
+}
+div.wiristabs span.wirissyntaxlabel {
+    width: 110px;
+    display:  inline-block;
+    text-align: right;
+    margin-right: 5px;
+}
+div.wiristabs fieldset.wirismainfieldset legend.wirismainfieldset {
+    font-weight: bold;
+    border: solid 1px #999;
+    padding-left: 5px;
+    padding-right:  5px;
+    padding-bottom: 1px;
+}
+
+div.wiristabs span.wirishorizontalparam{
+    display: inline-block;
+    min-width: 42px;
+}
+
+div.wiristabs label.wirisleftlabel, div.wiristabs span.wirisleftlabel {
+    display: inline-block;
+    width: 150px;
+    text-align: right;
+    margin-right: 5px;
+}
+div.wiristabs label.wirisleftlabel2 {
+    margin-right: 5px;
+}
+div.wiristabs div.wirishelpwrapper {
+    font-size: 10pt;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+div.wiristabs div.wirissecondaryfieldset {
+    margin-bottom: 10px;
+}
+input[type=button].wirisbutton {
+    min-width: 70px;
+}
+div.wiristabs ul.wiristestassertionslist span.wiriscorrect {
+    background: url('correct.gif') no-repeat left;
+    padding-left:  18px;
+}
+div.wiristabs ul.wiristestassertionslist span.wirisincorrect {
+    background: url('incorrect.gif') no-repeat left;
+    padding-left:  18px;
+}
+div.wiristabs span.wiristestgradetext {
+    display:  inline-block;
+    font-weight: bold;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-left: 18px;
+}
+div.wiristabs span.wiristestgradetext.wiriscorrect {
+    color: #57a005;
+}
+div.wiristabs span.wiristestgradetext.wirisincorrect {
+    color: #c02705;
+}
+div.wiristabs div.wiristestbuttons {
+    padding-bottom: 5px;
+}
+div.wiriscasinitialcontent {
+    bottom: 50px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: #e0e0e0;
+}
+div.wiriscasinitialcontent div.wiriscaswrapper {
+    bottom: 10px;
+    left: 10px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+
+    

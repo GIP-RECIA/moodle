@@ -680,9 +680,13 @@ class core_renderer extends renderer_base {
                 }
             } else {
                 $loggedinas = $realuserinfo.get_string('loggedinas', 'moodle', $username);
-                if ($withlinks) {
+				// MODIFICATION RECIA - DEBUT
+                //LEA : Suppression du lien de deconnexion.
+                if ($withlinks && false) {
                     $loggedinas .= " (<a href=\"$CFG->wwwroot/login/logout.php?sesskey=".sesskey()."\">".get_string('logout').'</a>)';
                 }
+                //FIN LEA
+				// MODIFICATION RECIA - FIN
             }
         } else {
             $loggedinas = get_string('loggedinnot', 'moodle');

@@ -19,7 +19,9 @@
 }
 
 .block_course_overview .coursebox {
+    /* Modification RECIA
     padding: 15px;
+    Fin modification RECIA */
     width: auto;
 }
 

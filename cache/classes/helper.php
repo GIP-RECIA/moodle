@@ -527,7 +527,13 @@ class cache_helper {
     public static function hash_key($key, cache_definition $definition) {
         if ($definition->uses_simple_keys()) {
             if (debugging() && preg_match('#[^a-zA-Z0-9_]#', $key)) {
-                throw new coding_exception('Cache definition '.$definition->get_id().' requires simple keys. Invalid key provided.', $key);
+                ////////////////////////////////////////////////
+                // MODIFICATION RECIA | DEBUT | 2013-07-08
+                ////////////////////////////////////////////////
+                // throw new coding_exception('Cache definition '.$definition->get_id().' requires simple keys. Invalid key provided.', $key);
+                ////////////////////////////////////////////////
+                // MODIFICATION RECIA | FIN
+                ////////////////////////////////////////////////
             }
             // We put the key first so that we can be sure the start of the key changes.
             return (string)$key . '-' . $definition->generate_single_key_prefix();

@@ -4967,7 +4967,8 @@ function set_login_session_preferences() {
  *             failed, but you have no way of knowing which.
  */
 function delete_course($courseorid, $showfeedback = true) {
-    global $DB;
+    global $DB, $CFG;
+    require_once($CFG->libdir.'/badgeslib.php');
 
     if (is_object($courseorid)) {
         $courseid = $courseorid->id;
@@ -4984,6 +4985,9 @@ function delete_course($courseorid, $showfeedback = true) {
     if ($courseid == SITEID) {
         return false;
     }
+
+    // Handle course badges.
+    badges_handle_course_deletion($courseid);
 
     // Make the course completely empty.
     remove_course_contents($courseid, $showfeedback);

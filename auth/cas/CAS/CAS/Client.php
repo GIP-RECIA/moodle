@@ -976,9 +976,11 @@ class CAS_Client
         if ( $this->_isCallbackMode() ) {
             //callback mode: check that phpCAS is secured
             if ( !$this->_isHttps() ) {
-                phpCAS::error(
+				// MODIFICATION RECIA - DEBUT
+                /*phpCAS::error(
                     'CAS proxies must be secured to use phpCAS; PGT\'s will not be received from the CAS server'
-                );
+                );*/
+				// MODIFICATION RECIA -FIN
             }
         } else {
             //normal mode: get ticket and remove it from CGI parameters for

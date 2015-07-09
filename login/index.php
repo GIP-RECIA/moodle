@@ -33,6 +33,96 @@ if (!isset($CFG->additionalhtmlhead)) {
 }
 $CFG->additionalhtmlhead .= '<meta name="robots" content="noindex" />';
 
+function unserializesession( $serialized_string ) {
+	$variables = array( );
+	$a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
+	for( $i = 0; $i < count( $a ); $i = $i+2 ) {
+		$variables[$a[$i]] =  unserialize($a[$i+1]) ;
+	}
+	return $variables ;
+}
+
+#Put the CAS Ticket value passed in via a request param in the session in order to delete the session
+#after a global cas logout
+if (isset($_REQUEST['ticket'])) {
+	//error_log("[Moodle] CAS Global ticket id is " . $_REQUEST['ticket']);
+	$SESSION->ticket = $_REQUEST['ticket'];
+}
+
+// If cas request is detected, terminate the corresponding session
+if (isset($_POST) && array_key_exists('logoutRequest', $_POST)) {
+	if (isset($_REQUEST['logoutRequest'])) {
+		preg_match("/<samlp:SessionIndex>(ST-[0-9]+-[^<]+)<\/samlp:SessionIndex>/" ,$_REQUEST['logoutRequest'] , $matches);
+		
+		
+		error_log("[Moodle] Info : CAS tells that session ".$matches[1]." is ended !");
+		$id_ticket_cas_deconnecte = $matches[1];
+
+		// Delete session of user using CAS ST
+		if(empty($CFG->dbsessions)) {
+			// File session
+			$dir = $CFG->dataroot .'/sessions';
+			if (is_dir($dir)) {
+				if ($dh = opendir($dir)) {
+					// Read all session files
+					while (($file = readdir($dh)) !== false) {
+						// Check if it is a file
+						if (is_file($dir.'/'.$file)){
+							// Read session file data
+							$data = file($dir.'/'.$file);
+		
+							if (isset($data[0])){
+								$user_session = unserializesession($data[0]);
+		
+								// Check if we have found session that shall be deleted
+								if (isset($user_session['SESSION']) && isset($user_session['SESSION']->ticket)){
+									//error_log("Session & ticket found ");
+									// If there is a match, delete file
+									if ($user_session['SESSION']->ticket == $id_ticket_cas_deconnecte){
+										// Delete session file
+										if (!unlink($dir.'/'.$file)){
+											error_log("[Moodle] Error : Can't terminate session $id_ticket_cas_deconnecte");
+										}
+										else {
+											error_log("[Moodle] Info : Session $id_ticket_cas_deconnecte successfully terminated");
+										}
+									}
+								}
+							}
+						}
+					}
+					closedir($dh);
+				}
+			}
+		}
+		else {
+			// DB Session
+			error_log("DB Session");
+			global $CFG, $SESSION, $DB;
+			
+			if (!empty($CFG->sessiontimeout)) {
+				$ADODB_SESS_LIFE   = $CFG->sessiontimeout;
+			}
+			
+			$user_session_data = $DB->get_records_sql('SELECT sid,sessdata FROM {sessions} ');
+			if ($user_session_data) {
+				
+				foreach ($user_session_data as $session_data) {
+					// Get user session
+					$user_session = unserializesession(base64_decode($session_data->sessdata));
+					if (isset($user_session['SESSION']) && isset($user_session['SESSION']->ticket)) {
+					
+						// If there is a match$, delete session
+						if ($user_session['SESSION']->ticket == $id_ticket_cas_deconnecte) {
+							session_kill($session_data->sid);
+							error_log("[Moodle] Info : Session $id_ticket_cas_deconnecte successfully terminated");
+						}
+					}
+				}
+			}
+		}
+	}
+}
 redirect_if_major_upgrade_required();
 
 $testsession = optional_param('testsession', 0, PARAM_INT); // test session works properly

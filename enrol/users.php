@@ -28,6 +28,15 @@ require_once("$CFG->dirroot/enrol/users_forms.php");
 require_once("$CFG->dirroot/enrol/renderer.php");
 require_once("$CFG->dirroot/group/lib.php");
 
+////////////////////////////////////////////////
+// MODIFICATION RECIA | DEBUT | 2013-04-23
+////////////////////////////////////////////////
+$PAGE->requires->jquery();
+$PAGE->requires->js( new moodle_url($CFG->wwwroot . '/enrol/js/selectall.js') );
+////////////////////////////////////////////////
+// MODIFICATION RECIA | FIN
+////////////////////////////////////////////////
+
 $id      = required_param('id', PARAM_INT); // course id
 $action  = optional_param('action', '', PARAM_ALPHANUMEXT);
 $filter  = optional_param('ifilter', 0, PARAM_INT);
@@ -232,7 +241,14 @@ foreach ($users as $userid=>&$user) {
     $user['enrol'] = $renderer->user_enrolments_and_actions($user['enrolments']);
 }
 $table->set_total_users($manager->get_total_users());
-$table->set_users($users);
+////////////////////////////////////////////////
+// MODIFICATION RECIA | DEBUT | 2013-04-23
+////////////////////////////////////////////////
+// $table->set_users($users);
+$table->set_users($users, $PAGE->course);
+////////////////////////////////////////////////
+// MODIFICATION RECIA | FIN
+////////////////////////////////////////////////
 
 $PAGE->set_title($PAGE->course->fullname.': '.get_string('totalenrolledusers', 'enrol', $manager->get_total_users()));
 $PAGE->set_heading($PAGE->title);

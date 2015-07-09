@@ -44,6 +44,7 @@ $string['disableinstanceconfirmself'] = 'Are you really sure you want to disable
 $string['durationdays'] = '{$a} days';
 $string['editenrolment'] = 'Edit enrolment';
 $string['enrol'] = 'Enrol';
+
 $string['enrolcandidates'] = 'Not enrolled users';
 $string['enrolcandidatesmatching'] = 'Matching not enrolled users';
 $string['enrolcohort'] = 'Enrol cohort';
@@ -65,6 +66,13 @@ $string['enrolxusers'] = 'Enrol {$a} users';
 $string['enroltimecreated'] = 'Enrolment created';
 $string['enroltimeend'] = 'Enrolment ends';
 $string['enroltimestart'] = 'Enrolment starts';
+////////////////////////////////////////////////
+// MODIFICATION RECIA | DEBUT | 2013-07-19
+////////////////////////////////////////////////
+$string['enroltitle'] = 'Enrol :';
+////////////////////////////////////////////////
+// MODIFICATION RECIA | FIN
+////////////////////////////////////////////////
 $string['errajaxfailedenrol'] = 'Failed to enrol user';
 $string['errajaxsearch'] = 'Error when searching users';
 $string['erroreditenrolment'] = 'An error occurred while trying to edit a users enrolment';

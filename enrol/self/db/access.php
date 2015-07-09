@@ -37,7 +37,22 @@ $capabilities = array(
         )
     ),
 
-    /* Manage user self-enrolments. */
+    ////////////////////////////////////////////////
+    // MODIFICATION RECIA | DEBUT | 2013-04-12
+    ////////////////////////////////////////////////
+    'enrol/self:holdkey' => array( 
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+        )
+    ),
+    ////////////////////////////////////////////////
+    // MODIFICATION RECIA | FIN
+    ////////////////////////////////////////////////
+
+	/* Manage user self-enrolments. */
     'enrol/self:manage' => array(
 
         'captype' => 'write',

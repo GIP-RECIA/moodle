@@ -1,0 +1,8 @@
+.navbar .btn-navbar .icon-bar {
+    background-color: #9a2f0b;
+}
+a { color: #9a2f0b; }
+.navbar .nav
+li.dropdown.open > .dropdown-toggle {
+	color : #9a2f0b;
+}

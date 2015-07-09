@@ -1103,7 +1103,10 @@ class global_navigation extends navigation_node {
                 $this->rootnodes['home']->action->param('redirect', '0');
             }
         }
-        $this->rootnodes['site'] = $this->add_course($SITE);
+		// MODIFICATION RECIA - DEBUT
+		if (is_siteadmin()) {
+			$this->rootnodes['site'] = $this->add_course($SITE);
+		}
         $this->rootnodes['myprofile'] = $this->add(get_string('myprofile'), null, self::TYPE_USER, null, 'myprofile');
         $this->rootnodes['currentcourse'] = $this->add(get_string('currentcourse'), null, self::TYPE_ROOTNODE, null, 'currentcourse');
         $this->rootnodes['mycourses'] = $this->add(get_string('mycourses'), new moodle_url('/my/'), self::TYPE_ROOTNODE, null, 'mycourses');
@@ -1112,8 +1115,11 @@ class global_navigation extends navigation_node {
 
         // We always load the frontpage course to ensure it is available without
         // JavaScript enabled.
-        $this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
-        $this->load_course_sections($SITE, $this->rootnodes['site']);
+		if (is_siteadmin()) {
+			$this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
+			$this->load_course_sections($SITE, $this->rootnodes['site']);
+		}
+		// MODIFICATION RECIA - FIN
 
         $course = $this->page->course;
 
@@ -1151,7 +1157,9 @@ class global_navigation extends navigation_node {
                 break;
             case CONTEXT_COURSECAT :
                 // This is essential, we must load categories.
-                $this->load_all_categories($this->page->context->instanceid, true);
+                // MODIFICATION RECIA - DEBUT
+                //$this->load_all_categories($this->page->context->instanceid, true);
+                // MODIFICATION RECIA - FIN
                 break;
             case CONTEXT_BLOCK :
             case CONTEXT_COURSE :
@@ -1421,7 +1429,9 @@ class global_navigation extends navigation_node {
         // If we are going to show all courses AND we are showing categories then
         // to save us repeated DB calls load all of the categories now
         if ($this->show_categories()) {
-            $this->load_all_categories($toload);
+            // MODIFICATION RECIA - DEBUT
+            //$this->load_all_categories($toload);
+            // MODIFICATION RECIA - FIN
         }
 
         // Will be the return of our efforts
@@ -1690,9 +1700,35 @@ class global_navigation extends navigation_node {
             if (array_key_exists($category->id, $this->addedcategories)) {
                 // Do nothing
             } else if ($category->parent == '0') {
-                $this->add_category($category, $this->rootnodes['courses']);
+                // MODIFICATION RECIA - DEBUT
+            	//Modifier pour l'ENT-CRA
+            	$limit = 20;
+            	if (!empty($CFG->navcourselimit)) {
+            		$limit = $CFG->navcourselimit;
+            	}
+            	$mycourses = enrol_get_my_courses(NULL, 'visible DESC,sortorder ASC', $limit);
+            	if($ismycourse){
+            		$this->add_category($category, $this->rootnodes['mycourses']);
+            	}else{
+                	$this->add_category($category, $this->rootnodes['courses']);
+            	}
+                // MODIFICATION RECIA - FIN
             } else if (array_key_exists($category->parent, $this->addedcategories)) {
-                $this->add_category($category, $this->addedcategories[$category->parent]);
+                // MODIFICATION RECIA - DEBUT
+            	//Modifier pour l'ENT-CRA
+            	$mycourses = enrol_get_my_courses(NULL, 'visible DESC,sortorder ASC', $limit);
+            	if(!empty($mycourses)){
+	            	foreach ($mycourses as $cours) {
+	            		if($cours->category == $category->id ){
+	            			$this->add_category($category, $this->addedcategories[$category->parent]);
+	            		}else if(!$ismycourse){
+	            			$this->add_category($category, $this->addedcategories[$category->parent]);
+	            		}
+	            	}
+            	}else {
+            		$this->add_category($category, $this->addedcategories[$category->parent]);
+            	}
+                // MODIFICATION RECIA - FIN
             } else {
                 // This category isn't in the navigation and niether is it's parent (yet).
                 // We need to go through the category path and add all of its components in order.
@@ -2389,7 +2425,7 @@ class global_navigation extends navigation_node {
      * @return navigation_node
      */
     public function add_course(stdClass $course, $forcegeneric = false, $coursetype = self::COURSE_OTHER) {
-        global $CFG, $SITE;
+        global $DB, $CFG, $SITE;
 
         // We found the course... we can return it now :)
         if (!$forcegeneric && array_key_exists($course->id, $this->addedcourses)) {
@@ -2408,7 +2444,14 @@ class global_navigation extends navigation_node {
 
         $issite = ($course->id == $SITE->id);
         $shortname = format_string($course->shortname, true, array('context' => $coursecontext));
-        $fullname = format_string($course->fullname, true, array('context' => $coursecontext));
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-04-04
+        ////////////////////////////////////////////////
+        // Ajout pour affichage du nom du cours dans la barre de navigation :
+        $fullname_RC = format_string($course->fullname, true, array('context' => $coursecontext));
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
         // This is the name that will be shown for the course.
         $coursename = empty($CFG->navshowfullcoursenames) ? $shortname : $fullname;
 
@@ -2421,6 +2464,40 @@ class global_navigation extends navigation_node {
                 $coursename = get_string('sitepages');
             }
         } else if ($coursetype == self::COURSE_CURRENT) {
+            // MODIFICATION RECIA - DEBUT
+            //LEA ajouter les categories
+/*	Supprimé lors du passage en Moodle 2.8 pour simplifier le bloc Navigation
+            $catcontextsql = context_helper::get_preload_record_columns_sql('ctx');
+            $sqlselect = "SELECT cc.*, $catcontextsql
+            FROM {course_categories} cc
+            JOIN {context} ctx ON cc.id = ctx.instanceid";
+            $sqlwhere = "WHERE ctx.contextlevel = ".CONTEXT_COURSECAT;
+            $sqlorder = "ORDER BY cc.depth ASC, cc.sortorder ASC, cc.id ASC";
+            $params = array();
+            
+            
+            $categoriestoload = array();
+             
+            $category = $DB->get_record('course_categories', array('id' => $course->category), 'path', MUST_EXIST);
+            $categoriestoload = explode('/', trim($category->path, '/'));
+            list($select, $params) = $DB->get_in_or_equal($categoriestoload);
+             
+            $sqlwhere .= " AND cc.id {$select} ";
+             
+            $categoriesrs = $DB->get_recordset_sql("$sqlselect $sqlwhere $sqlorder", $params);
+            $categories = array();
+            foreach ($categoriesrs as $category) {
+            	if ($category->parent == '0') {
+            		$this->add_category($category, $this->rootnodes['currentcourse']);
+            	} else if (array_key_exists($category->parent, $this->addedcategories)) {
+            		$this->add_category($category, $this->addedcategories[$category->parent]);
+            	} else {
+            		$categories[] = $category;
+            	}
+            }
+            $categoriesrs->close(); */
+            //FIN LEA ajouter les categories
+            // MODIFICATION RECIA - FIN
             $parent = $this->rootnodes['currentcourse'];
             $url = new moodle_url('/course/view.php', array('id'=>$course->id));
         } else if ($coursetype == self::COURSE_MY && !$forcegeneric) {
@@ -2438,7 +2515,9 @@ class global_navigation extends navigation_node {
             if (!empty($course->category) && $this->show_categories($coursetype == self::COURSE_MY)) {
                 if (!$this->is_category_fully_loaded($course->category)) {
                     // We need to load the category structure for this course
-                    $this->load_all_categories($course->category, false);
+	                // MODIFICATION RECIA - DEBUT
+                    //$this->load_all_categories($course->category, false);
+	                // MODIFICATION RECIA - FIN
                 }
                 if (array_key_exists($course->category, $this->addedcategories)) {
                     $parent = $this->addedcategories[$course->category];
@@ -2450,11 +2529,24 @@ class global_navigation extends navigation_node {
             }
         }
 
-        $coursenode = $parent->add($coursename, $url, self::TYPE_COURSE, $shortname, $course->id);
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-04-04
+        ////////////////////////////////////////////////
+        // Ancien code :
+        /*
+            $coursenode = $parent->add($shortname, $url, self::TYPE_COURSE, $shortname, $course->id);
+        */
+        // Nouveau code :
+        // Pour affichage du nom du cours dans la barre de navigation                                                      
+        $coursenode = $parent->add($fullname_RC, $url, self::TYPE_COURSE, $shortname, $course->id);
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
+        $coursenode->nodetype = self::NODETYPE_BRANCH;
         $coursenode->hidden = (!$course->visible);
         // We need to decode &amp;'s here as they will have been added by format_string above and attributes will be encoded again
         // later.
-        $coursenode->title(str_replace('&amp;', '&', $fullname));
+        $coursenode->title(str_replace('&amp;', '&', $fullname_RC));
         if ($canexpandcourse) {
             // This course can be expanded by the user, make it a branch to make the system aware that its expandable by ajax.
             $coursenode->nodetype = self::NODETYPE_BRANCH;
@@ -3015,10 +3107,23 @@ class global_navigation_for_ajax extends global_navigation {
                     $this->add_category($category, $basecategory, $nodetype);
                 }
             }
+            // MODIFICATION RECIA - DEBUT
+		    //LEA 
+		    $mycourses = enrol_get_my_courses();
+		    $ids=array();
+		    foreach($mycourses as $mycourse){
+		    	$ids[] = $mycourse->id;
+				$this->add_course($mycourse, true, self::COURSE_MY);
+		    }
+		    
             $courses = $DB->get_recordset('course', array('category' => $categoryid), 'sortorder', '*' , 0, $limit);
             foreach ($courses as $course) {
-                $this->add_course($course);
+                if (in_array($course->id, $ids)){
+	            	$this->add_course($course);
+        		}
             }
+			//LEA
+            // MODIFICATION RECIA - FIN
             $courses->close();
         }
     }
@@ -3850,6 +3955,18 @@ class settings_navigation extends navigation_node {
             $url = new moodle_url('/course/reset.php', array('id'=>$course->id));
             $coursenode->add(get_string('reset'), $url, self::TYPE_SETTING, null, null, new pix_icon('i/return', ''));
         }
+                
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-06-27
+        ////////////////////////////////////////////////
+        // Delete this course
+        if (has_capability('moodle/course:delete', $coursecontext)) {
+            $url = new moodle_url('/course/delete-for-user.php', array('id'=>$course->id));
+            $coursenode->add(get_string('delete'), $url, self::TYPE_SETTING, null, null, new pix_icon('t/delete', ''));
+        }
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
 
         // Questions
         require_once($CFG->libdir . '/questionlib.php');

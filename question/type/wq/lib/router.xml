@@ -1,0 +1,10 @@
+<router>
+  <service>
+    <name>quizzes</name>
+    <url>http://www.wiris.net/demo/quizzes/rest</url>
+  </service>
+  <service>
+    <name>render</name>
+    <url>http://www.wiris.net/demo/editor/render</url>
+  </service>
+</router>

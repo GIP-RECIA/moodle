@@ -53,6 +53,22 @@ class enrol_self_enrol_form extends moodleform {
             // Change the id of self enrolment key input as there can be multiple self enrolment methods.
             $mform->addElement('passwordunmask', 'enrolpassword', get_string('password', 'enrol_self'),
                     array('id' => 'enrolpassword_'.$instance->id));
+            ////////////////////////////////////////////////
+            // MODIFICATION RECIA | DEBUT | 2013-04-12
+            ////////////////////////////////////////////////
+            $context = get_context_instance(CONTEXT_COURSE, $instance->courseid);
+            $keyholders = get_users_by_capability($context, 'enrol/self:holdkey', 'u.id, u.firstname, u.lastname, u.email');
+            if (count($keyholders) == 0) {
+                $keyholders = get_users_by_capability($context, 'enrol/self:manage', 'u.id, u.firstname, u.lastname, u.email');
+            }
+            foreach ($keyholders as $user) {
+                $keyholder = $user;
+                break;
+            }
+            $mform->addElement('static', 'keyholder', '', get_string('keyholder', 'enrol_self', $keyholder->firstname.' '.$keyholder->lastname));
+            ////////////////////////////////////////////////
+            // MODIFICATION RECIA | FIN
+            ////////////////////////////////////////////////
         } else {
             $mform->addElement('static', 'nokey', '', get_string('nopassword', 'enrol_self'));
         }

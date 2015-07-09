@@ -193,7 +193,12 @@ class tinymce_texteditor extends texteditor {
 
         // Remove temporary parameters.
         unset($params['moodle_config']);
-
+        //LEA Ajout de NanoGong
+	/*if (isset($options['maxfiles']) and $options['maxfiles'] != 0) {
+	    $params['plugins'] .= ',nanogong';
+	    $params['theme_advanced_buttons3'] .=',nanogong';
+	}*/	
+        //Fin-LEA Ajout de NanoGong
         return $params;
     }
 

@@ -1,0 +1,33 @@
+Présentation des types de thèmes
+
+Il existe 2 types de thèmes:
+-les thèmes non personnalisés:
+Ces thèmes sont en fait des liens symboliques vers un thème parent (netocentrerwd ou tourainerwd).
+Cela évite de dupliquer des fichiers et les modifications apportée sur le thème parent n'ont pas a être repportées sur le thème de l'établissement.
+
+-les thèmes personnalisés:
+Ces thèmes sont des copies d'un thème parent (netocentrerwd ou tourainerwd).
+Seuls sont conservés les fichier essentiels pour définir un thème en tant que tel (lang/en/theme_xxx.php, config.php et version.php)
+Les thèmes personnalisés ont un logo personnel. Ce logo doit être positionné dans le dossier pix/ sous le nom logo.png.
+Pour que le chemin relatif vers ce dossier soit correctement défini, il est également nécessaire de créer un lien symbolique du dossier layout du parent.
+
+
+Utilisation
+
+-Créer un thème non personnalisé:
+Il faut exécuter le script "creer_lien_symbolique_vers_theme.sh" en lui passant en paramètre le nom du thème a créer et le nom du thème parent.
+ex: ./creer_lien_symbolique_vers_theme.sh 0333333y netocentrerwd
+
+-Créer plusieurs thèmes non personnalisés:
+Éditer le fichier procedure_creer_liens_symboliques.sh et créer une commande pour chaque thème à générer.
+Puis exécuter le script procedure_creer_liens_symboliques.sh.
+
+-Créer un thème personnalisé:
+Il faut exécuter le script copier_theme.sh en lui passant en paramètre le nom du thème a créer, le nom du thème parent. 
+Si le thème contient un logo personnel, il faut créer le dossier pix/ et y coller le logo sous le nom logo.png.
+Si le thème dispose d'une couleur personnalisée, il faut préciser cette couleur en troisième paramètre.
+ex: ./copier_theme.sh 0333333y netocentrerwd aa00bb
+
+-Créer plusieurs thèmes personnalisés:
+Éditer le fichier procedure_copier_themes.sh et créer une commande pour chaque thème à générer.
+Puis exécuter le script procedure_copier_themes.sh.
