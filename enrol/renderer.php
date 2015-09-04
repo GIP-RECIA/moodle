@@ -48,6 +48,7 @@ class core_enrol_renderer extends plugin_renderer_base {
             $buttonhtml .= html_writer::start_tag('div', array('class' => 'enrol_user_buttons'));
             ////////////////////////////////////////////////
             // MODIFICATION RECIA | DEBUT | 2013-04-23
+	    // Pour avoir le terme "Inscription" placé avant les boutons : Manuelle, Annuaire ENT, Mes classes
             ////////////////////////////////////////////////
             $buttonhtml .= html_writer::tag('span', get_string('enroltitle', 'enrol'), array('class'=>''));
             ////////////////////////////////////////////////
@@ -563,8 +564,11 @@ class course_enrolment_table extends html_table implements renderable {
      */
     ////////////////////////////////////////////////
     // MODIFICATION RECIA | DEBUT | 2013-08-29
+    // Remis comme avant car mauvais fonctionnement avec la version 2.8
+    // Le problème qui reste, et que devait corriger cette modification, est qu'un enseignant/propriétaire de cours peut se désinscrire de son cours facilement
+    // => À REVOIR !
     ////////////////////////////////////////////////
-	/* Code Avant
+	/* Code Avant */
     public function set_users(array $users) {
         $this->users = $users;
         $hasbulkops = !empty($this->bulkoperations);
@@ -600,7 +604,8 @@ class course_enrolment_table extends html_table implements renderable {
             }
             $this->data[] = $row;
         }
-    } Fin Code Avant */
+    }
+/* Fin Code Avant
 	// Code Après
 	public function set_users(array $users, $course = NULL) {
 		global  $DB, $USER;
@@ -666,7 +671,7 @@ class course_enrolment_table extends html_table implements renderable {
             }
             $this->data[] = $row;
         }
-    }
+    }*/
     ////////////////////////////////////////////////
     // MODIFICATION RECIA | FIN
     ////////////////////////////////////////////////
