@@ -254,7 +254,7 @@ class enrol_simpleldap_potential_participant extends user_selector_base {
     	
     	
     	
-        global $DB;
+        global $DB, $CFG;
         //by default wherecondition retrieves all users except the deleted, not confirmed and guest
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         $params['enrolid'] = $this->enrolid;
@@ -270,9 +270,15 @@ class enrol_simpleldap_potential_participant extends user_selector_base {
                             JOIN {enrol} e ON (e.id = ue.enrolid AND e.id = :enrolid))";
         $order = ' ORDER BY u.lastname ASC, u.firstname ASC';
 
+        if (!empty($CFG->maxusersperpage)) {
+            $maxusersperpage = $CFG->maxusersperpage;
+        } else {
+	    $maxusersperpage = 100;
+	}
+
         if (!$this->is_validating()) {
             $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $params);
-            if ($potentialmemberscount > 100) {
+            if ($potentialmemberscount > $maxusersperpage) {
                 return $this->too_many_results($search, $potentialmemberscount);
             }
         }
@@ -394,7 +400,7 @@ class enrol_simpleldap_current_participant extends user_selector_base {
      * @return array
      */
     public function find_users($search) {
-        global $DB;
+        global $DB, $CFG;
         //by default wherecondition retrieves all users except the deleted, not confirmed and guest
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         $params['enrolid'] = $this->enrolid;
@@ -408,9 +414,16 @@ class enrol_simpleldap_current_participant extends user_selector_base {
 
         $order = ' ORDER BY u.lastname ASC, u.firstname ASC';
 
+	if (!empty($CFG->maxusersperpage)) {
+            $maxusersperpage = $CFG->maxusersperpage;
+        } else {
+            $maxusersperpage = 100;
+        }
+
+
         if (!$this->is_validating()) {
             $potentialmemberscount = $DB->count_records_sql($countfields . $sql, $params);
-            if ($potentialmemberscount > 100) {
+            if ($potentialmemberscount > $maxusersperpage) {
                 return $this->too_many_results($search, $potentialmemberscount);
             }
         }
