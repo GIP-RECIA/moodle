@@ -74,7 +74,7 @@ class enrol_simpleldap_ldapsearch {
                         */
 
                         // Nouveau code :
-			} else {
+			} else if (array_key_exists($keyAttr,$record)) {
     	                    for ($j = 0; $j < $record[$keyAttr]["count"] ; $j++){
 	                    	$key = $record[$keyAttr][$j];
 				if($labelAttr == "dn") {
