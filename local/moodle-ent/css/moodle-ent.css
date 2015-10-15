@@ -25,5 +25,44 @@ dd.course {
 /* Hide the tabs at the beginning */
 #tabs {
     display: none;
+	border: none;
+	overflow-x: hidden;
+	min-height: 160px;
+}
+
+#hamburger {
+    border-radius: 3px 3px 3px 3px;
+    cursor: pointer;
+    display: block;
+    height: 24px;
+    padding: 3px 4px 3px;
+    position: relative;
+    width: 25px;
+    background: #cccccc url("images/ui-bg_highlight-soft_75_cccccc_1x100.png") repeat-x scroll 50% 50%;
+}
+
+#hamburger div {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 2px 2px 2px 2px;
+    height: 2px;
+    margin-top: 3px;
+    width: 90%;
+}
+
+#tab-container {
+	display: none;
+	opacity: 0.0;
+	float: left;
+	width: 300px;
+	background: none;
+	border: none;
+	border-bottom: 1px solid #aaaaaa;
+}
+
+#tab-container li,
+#tab-container a {
+	width: 100%;
+	cursor: pointer;
 }
 
