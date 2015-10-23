@@ -66,3 +66,84 @@ dd.course {
 	cursor: pointer;
 }
 
+/****************************************************************************************************************/
+/*												Mes cours Moodle												*/
+/****************************************************************************************************************/
+
+#tabs-1 {
+	font-family: "open sans",sans-serif;
+	font-size: 14px;
+}
+
+#tabs-1 .header {
+	display: none;
+}
+
+#tabs-1 h4 {
+	font-weight: normal;
+    font-size: 20px;
+    font-family: inherit;
+    margin: 10px 0 10px 0;
+}
+
+#tabs-1 a {
+    color: #169 !important;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+#tabs-1 a:hover,
+#tabs-1 a:focus {
+    color: #25b2f3 !important;
+}
+
+#tabs-1 .coursebox {
+    width: auto;
+    background-color: #fff;
+    border: 1px solid #e3e3e3;
+    border-radius: 2px;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
+    padding: 5px;
+    max-width: 690px;
+}
+
+#tabs-1 div.summary_reply.fold_reply {
+    display: none;
+}
+
+#tabs-1 .summary {
+    margin: 10px;
+}
+
+#tabs-1 .teachers_reply.fold_reply {
+    display: block;
+    padding: 3px 15px;
+    width: 180px;
+}
+
+#tabs-1 .block-hider-show {
+    background-position: 0 4px;
+    background-repeat: no-repeat;
+    padding-left: 21px;
+}
+
+#tabs-1 .block-hider-hide {
+    background-position: 0 4px;
+    background-repeat: no-repeat;
+    padding-left: 21px;
+    display: none;
+}
+
+#tabs-1 ul.teachers.folded {
+    display: none;
+}
+
+#tabs-1 li {
+	list-style-type: none;
+}
+
+#tabs-1 .categorypath {
+    color: #999;
+    text-align: right;
+}

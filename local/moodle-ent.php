@@ -242,6 +242,9 @@ function update_last_access($courses) {
         <link rel="stylesheet" href="./moodle-ent/css/moodle-ent.css" />
         <script src="./moodle-ent/js/jquery.min.1.9.1.js" type="text/javascript"></script>
         <script src="./moodle-ent/js/jquery-ui.min.1.10.2.js" type="text/javascript"></script>
+        <script type="text/javascript">
+			var themeUrl = <?= '"'.$CFG->wwwroot.'/theme/image.php/'.$CFG->theme.'/core/'.$CFG->themerev.'/t'.'"'; ?>;
+        </script>
         <script src="./moodle-ent/js/moodle-ent.js" type="text/javascript"></script>
         <script src="./moodle-ent/js/domain.js" type="text/javascript"></script>
     </head>
@@ -302,13 +305,17 @@ if ($anuser) {
 
     // Recuperation des cours dans lequel l'utilisateur participe
     $courses = enrol_get_users_courses( $anuser->id, true, 'id, fullname, timecreated', 'fullname ASC' ); //'timecreated' necessaire pour pouvoir trier les cours par date
-    $courses = remove_site_course($courses);
-    $courses = update_last_access($courses);
     $courses = add_roles($anuser->id, $courses);
     
-    // Affichage des cours
-    display_courses($courses, true);
-
+    // Recuperation du bloc "course_overview_esco"
+    $instance = $DB->get_record('block_instances', array('blockname' => 'course_overview_esco'));
+    $block_course_overview_esco = block_instance('course_overview_esco', $instance);
+    $renderer = $block_course_overview_esco->page->get_renderer('block_course_overview_esco');
+    $html = $renderer->course_overview_esco($courses);
+    
+	// Affichage des cours
+	print($html);
+	
     print('</dl></div>');
     print('<div id="tabs-2"><dl>');
 

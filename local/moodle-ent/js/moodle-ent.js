@@ -28,16 +28,28 @@ $(function() {
 	    });
 	}
 	
-	// On replace le filtre par rôle si nécessaire
-	var topSortSelect = $("select[name='sortOrder']").position().top;
-	var topFilterSpan = $("select[name='sortOrder']").next().position().top;
-	var topFilterSelect = $("select[name='sortOrder']").next().next().position().top;
-	if(Math.abs(topFilterSpan - topFilterSelect) > 5) {
-		$("select[name='sortOrder']").css("display", "block");
+	// Si on est en version mobile
+	if($(".ui-mobile").length > 0) {
+		$("div.ui-select:eq(0)").next().css("font-size", "18px"); //On augmente la taille de "Filtrer par profil :"
+	} else {
+		// On replace le filtre par rôle si nécessaire
+		var topSortSelect = $("select[name='sortOrder']").position().top;
+		var topFilterSpan = $("select[name='sortOrder']").next().position().top;
+		var topFilterSelect = $("select[name='sortOrder']").next().next().position().top;
+		if(Math.abs(topFilterSpan - topFilterSelect) > 5) {
+			$("select[name='sortOrder']").css("display", "block");
+		}
+		if(Math.abs(topSortSelect - topFilterSelect) > 5) {
+			$("select[name='sortOrder']").css("margin-bottom", "10px");					
+		}
 	}
-	if(Math.abs(topSortSelect - topFilterSelect) > 5) {
-		$("select[name='sortOrder']").css("margin-bottom", "10px");					
-	}
+	
+	// On affiche les flèches devant "Afficher les enseignants"
+    $("#tabs-1 .block-hider-show").css("background-image", "url('" + themeUrl + "/collapsed')");
+    $("#tabs-1 .block-hider-hide").css("background-image", "url('" + themeUrl + "/expanded')");
+	
+	// Lorsqu'on clique sur "Afficher les enseignants" 
+    addTeachersEvent();
 });
 
 /**
@@ -64,5 +76,22 @@ function displayMenu(visible) {
             	tagToDisplay.animate({opacity: '1.0'}, "slow");
         	}
 		});
+	});
+}
+
+/**
+ * Lorsqu'on clique sur "Afficher les enseignants"
+ */
+function addTeachersEvent() {
+	$("#tabs-1 .teachers_reply.fold_reply").click(function() {
+		if($("#tabs-1 .block-hider-show").is(":visible")) {
+			$("#tabs-1 .block-hider-show").css("display", "none");
+			$("#tabs-1 .block-hider-hide").css("display", "inline");
+			$("#tabs-1 .teachers.folded").css("display", "block");
+		} else {
+			$("#tabs-1 .block-hider-show").css("display", "inline");
+			$("#tabs-1 .block-hider-hide").css("display", "none");
+			$("#tabs-1 .teachers.folded").css("display", "none");
+		}
 	});
 }
