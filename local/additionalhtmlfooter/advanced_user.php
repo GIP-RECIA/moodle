@@ -24,17 +24,12 @@ if(!isset($USER->advancedUser)) {
 if(isset($_GET["change"])) {
 	$roles = getRoles();
 	if($USER->advancedUser == 0) {
-		// On duplique dans mdl_role_assignments les entrées ayant le rôle teacher ou editingteacher mais en mettant advancedteacher à la place
-		$params = array('roleid' => $roles["advancedteacher"], 'userid' => $USER->id, 'roleid1' => $roles["teacher"], 'roleid2' => $roles["editingteacher"]);
-		$DB->execute("insert into {role_assignments} (roleid, contextid, userid, timemodified, modifierid, component, itemid, sortorder) "
-					."select :roleid, contextid, userid, timemodified, modifierid, component, itemid, sortorder "
-					."from {role_assignments} "
-					."where userid = :userid and roleid in (:roleid1, :roleid2)", $params);
+		// On assigne le rôle advancedteacher
+		role_assign($roles["advancedteacher"], $USER->id, context_system::instance());
 		$USER->advancedUser = 1;
 	} else {
-		// On efface dans mdl_role_assignments les entrées ayant le rôle advancedteacher 
-		$params = array('userid' => $USER->id, 'roleid' => $roles["advancedteacher"]);
-		$DB->execute("delete from {role_assignments} where userid = :userid and roleid = :roleid", $params);
+		// On efface le rôle advancedteacher 
+		role_unassign($roles["advancedteacher"], $USER->id, context_system::instance()->id);
 		$USER->advancedUser = 0;
 	}
 

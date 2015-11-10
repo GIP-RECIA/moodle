@@ -92,8 +92,9 @@ function changeUserRole() {
 				var form = $("form[action$='course/view.php'][method='post']");
 				if(form.length == 1) {
 					// Si la popup du choix des activités/ressources est affichée
-					if($("form#chooserform").is(":visible")) {						
-						document.location.href = window.location.href.replace(new RegExp("&section=([-\\w]+)"), "") + "&section=" + openedSectionId;
+					if($("form#chooserform").is(":visible")) {
+						var url = window.location.href.replace(new RegExp("(#.+)"), "");
+						document.location.href = url.replace(new RegExp("&section=([-\\w]+)"), "") + "&section=" + openedSectionId;
 					} else {
 						document.location.href = window.location.href.replace(new RegExp("&section=([-\\w]+)"), "");						
 					}
@@ -112,7 +113,18 @@ function changeUserRole() {
 $(window).load(function() {
 	var section = new RegExp("section=([-\\w]+)").exec(window.location.search);
 	if(section != null) {
-		$("li#" + section[1] + " span.section-modchooser-text").click();
+		// Timeout nécessaire pour Chrome & IE
+		setTimeout(function() {
+			$("li#" + section[1] + " span.section-modchooser-text").click();
+			
+			// Cas de Safari
+			if($("div.alloptions").is(":hidden")) {
+				var elt = $("li#" + section[1] + " span.section-modchooser-text")[0];
+				var evObj = document.createEvent('MouseEvents');
+				evObj.initMouseEvent('click', true, true, window);
+				elt.dispatchEvent(evObj);
+			}
+		}, 500);
 	}
 });
 
