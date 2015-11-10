@@ -168,7 +168,8 @@ function block_course_overview_esco_get_sorted_courses($showallcourses = false) 
 
     $limit = block_course_overview_esco_get_max_user_courses($showallcourses);
 
-    $courses = enrol_get_my_courses();
+    $courses = enrol_get_my_courses('timecreated'); //'timecreated' necessaire pour pouvoir trier les cours par date
+    $courses = add_roles($USER->id, $courses);
     $site = get_site();
 
     if (array_key_exists($site->id,$courses)) {
@@ -229,5 +230,45 @@ function block_course_overview_esco_get_sorted_courses($showallcourses = false) 
             $sitecourses[$key] = $course;
         }
     }
+    
+    /* On tri les cours :
+     * $sortOrder = 1 : Tri croissant par Nom complet du cours
+     * $sortOrder = 2 : Tri décroissant par Nom complet du cours
+     * $sortOrder = 3 : Tri croissant par Date de création du cours
+     * $sortOrder = 4 : Tri décroissant par Date de création du cours
+     */
+    uasort($sortedcourses, function($courseA, $courseB) {
+    	$sortOrder = block_course_overview_esco_get_sort_courses();
+    	if($sortOrder == 2) {
+    		return strtolower($courseA->fullname) < strtolower($courseB->fullname);
+    	} else if($sortOrder == 3) {
+    		return $courseA->timecreated > $courseB->timecreated;
+    	} else if($sortOrder == 4) {
+    		return $courseA->timecreated < $courseB->timecreated;
+    	} else {
+    		return strtolower($courseA->fullname) > strtolower($courseB->fullname);
+    	}
+	});
+    
     return array($sortedcourses, $sitecourses, count($courses));
+}
+
+/**
+ * Met à jour le tri par défaut des cours dans les préférences utilisateur
+ * 
+ * @param int $sortcourses : <br>
+ * 1 : Tri croissant par Nom complet du cours <br>
+ * 2 : Tri décroissant par Nom complet du cours <br>
+ * 3 : Tri croissant par Date de création du cours <br>
+ * 4 : Tri décroissant par Date de création du cours
+ */
+function block_course_overview_esco_update_sortcourses($sortcourses) {
+	set_user_preference('course_overview_esco_sort_courses', $sortcourses);
+}
+
+/**
+ * Return le tri par défaut des cours dans les préférences utilisateur
+ */
+function block_course_overview_esco_get_sort_courses() {
+	return get_user_preferences('course_overview_esco_sort_courses');
 }

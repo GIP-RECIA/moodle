@@ -58,9 +58,13 @@ class block_course_overview_esco extends block_base {
         $config = get_config('block_course_overview_esco');
 
         $this->content = new stdClass();
-        $this->content->text = '';
         $this->content->footer = '';
-
+        
+        // Tri des cours et filtrage par rôle
+        ob_start();
+		include_once 'sort_and_filter.php';
+        $this->content->text = ob_get_clean();
+        
         $content = array();
 
         $updatemynumber = optional_param('mynumber', -1, PARAM_INT);
@@ -78,7 +82,7 @@ class block_course_overview_esco extends block_base {
         if (!empty($config->showwelcomearea)) {
             require_once($CFG->dirroot.'/message/lib.php');
             $msgcount = message_count_unread_messages();
-            $this->content->text = $renderer->welcome_area($msgcount);
+            $this->content->text .= $renderer->welcome_area($msgcount);
         }
 
         // Number of sites to display.
