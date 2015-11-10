@@ -202,7 +202,11 @@ function RUNN_print_overview($courses, $detail=false) {
     foreach ($courses as $course) {
         $course_url = "course/view.php?id=$course->id";
         $course_name = $course->fullname;
-        print('<dt class="course">' . html_link($course_url, $course_name) . '</dt>');
+        print('<dt class="course">'
+        	.'	<input type="hidden" value="'.$course->roles_esco.'">'
+        	.'	<input type="hidden" value="'.$course->timecreated.'">'
+        	. 	html_link($course_url, $course_name)
+        	. '</dt>');
 
         // Affichage du detail ?
         if ($detail && array_key_exists($course->id,$htmlarray)) {
@@ -210,7 +214,6 @@ function RUNN_print_overview($courses, $detail=false) {
                 echo '<dd class="course">'.$html.'</dd>';
             }
         }
-
     }
 }
 
@@ -239,12 +242,14 @@ function update_last_access($courses) {
         <link rel="stylesheet" href="./moodle-ent/css/moodle-ent.css" />
         <script src="./moodle-ent/js/jquery.min.1.9.1.js" type="text/javascript"></script>
         <script src="./moodle-ent/js/jquery-ui.min.1.10.2.js" type="text/javascript"></script>
-        <script type="text/javascript"> 
-            $(function() { $("#tabs").hide(); });
+        <script type="text/javascript">
+			var themeUrl = <?= '"'.$CFG->wwwroot.'/theme/image.php/'.$CFG->theme.'/core/'.$CFG->themerev.'/t'.'"'; ?>;
         </script>
+        <script src="./moodle-ent/js/moodle-ent.js" type="text/javascript"></script>
+        <script src="./moodle-ent/js/domain.js" type="text/javascript"></script>
     </head>
     <body>
-        <div class="moodle-courses">
+        <div class="moodle-courses">        
             <div class="portlet-section">
                 <img title="Chargement" alt="Chargement" id="loading" src="./moodle-ent/img/ajax-loading.gif" />
                 <div class="ui-tabs ui-widget ui-widget-content ui-corner-all">
@@ -256,25 +261,33 @@ function update_last_access($courses) {
 		    $moodle_link_name = 'Acc&eacute;der directement &agrave; Moodle';
 		    print('<dl><dt class="course">' . html_link('',$moodle_link_name) . '</dt></dl>');
 ?>
-		</div>
+				</div>
                 <div id="tabs" class="portlet-section-body">
-		    <ul>
-                      <li><a href="#tabs-1"><img alt="Logo mes cours" width="24" src="./moodle-ent/img/moodle-24.png"/>Mes cours Moodle</a></li>
-                      <li><a href="#tabs-2"><img alt="Logo avec cl&eacute;" width="24" src="./moodle-ent/img/AutoInscriptionAvecCle.png"/>Cours en auto-inscription avec cl&eacute;</a></li>
-                      <li><a href="#tabs-3"><img alt="Logo sans cl&eacute;" width="24" src="./moodle-ent/img/AutoInscriptionSansCle.png"/>Cours en auto-inscription sans cl&eacute;</a></li>
-                      <li><a href="#tabs-4"><img alt="Logo acc&egrave; libre" width="24" src="./moodle-ent/img/AccesLibre.png"/>Cours en acc&egrave;s libre</a></li>
-                      <li><a href="#tabs-5"><img alt="Logo recent" width="24" src="./moodle-ent/img/DocumentNew.png"/>Activit&eacute;s r&eacute;centes</a></li>
+	                <div id="header">
+				    	<div id="hamburger">
+				            <div></div>
+				            <div></div>
+				            <div></div>
+				        </div>
+				    </div>
+                
+		    		<ul id="tab-container">
+                    	<li><a href="#tabs-1"><img alt="Logo mes cours" width="24" src="./moodle-ent/img/moodle-24.png"/><span>Mes cours Moodle</span></a></li>
+                      	<li><a href="#tabs-2"><img alt="Logo avec cl&eacute;" width="24" src="./moodle-ent/img/AutoInscriptionAvecCle.png"/><span>Cours en auto-inscription avec cl&eacute;</span></a></li>
+                      	<li><a href="#tabs-3"><img alt="Logo sans cl&eacute;" width="24" src="./moodle-ent/img/AutoInscriptionSansCle.png"/><span>Cours en auto-inscription sans cl&eacute;</span></a></li>
+                      	<li><a href="#tabs-4"><img alt="Logo acc&egrave; libre" width="24" src="./moodle-ent/img/AccesLibre.png"/><span>Cours en acc&egrave;s libre</span></a></li>
+                      	<li><a href="#tabs-5"><img alt="Logo recent" width="24" src="./moodle-ent/img/DocumentNew.png"/><span>Activit&eacute;s r&eacute;centes</span></a></li>
                     </ul>
-                    <div id="tabs-1">
-                      <dl>
-
+                    
+                    <div id="main-container">
+                    	<div id="tabs-1">
+                   			<?php include_once '../blocks/course_overview_esco/sort_and_filter.php'; ?>
+	                    	<dl>
 <?php
-
 $systemcontext = get_context_instance(CONTEXT_SYSTEM);
 
 $PAGE->set_url('/local/moodle-ent.php');
 $PAGE->set_context($systemcontext);
-
 
 $uid = $_GET['uid'];
 $anuser = $DB->get_record("user", array("username"=>$uid));
@@ -291,13 +304,19 @@ if ($anuser) {
     $morecourses = false;
 
     // Recuperation des cours dans lequel l'utilisateur participe
-    $courses = enrol_get_users_courses( $anuser->id, true, 'id, fullname', 'fullname ASC' );
-    $courses = remove_site_course($courses);
-    $courses = update_last_access($courses);
+    $courses = enrol_get_users_courses( $anuser->id, true, 'id, fullname, timecreated', 'fullname ASC' ); //'timecreated' necessaire pour pouvoir trier les cours par date
+    $courses = add_roles($anuser->id, $courses);
     
-    // Affichage des cours
-    display_courses($courses, true);
-
+    // Recuperation du bloc "course_overview_esco"
+    $instance = $DB->get_record('block_instances', array('blockname' => 'course_overview_esco'));
+    $block_course_overview_esco = block_instance('course_overview_esco', $instance);
+    $renderer = $block_course_overview_esco->page->get_renderer('block_course_overview_esco');
+    $overviews = block_course_overview_esco_get_overviews($courses);
+    $html = $renderer->course_overview_esco($courses, $overviews);
+    
+	// Affichage des cours
+	print($html);
+	
     print('</dl></div>');
     print('<div id="tabs-2"><dl>');
 
@@ -348,19 +367,11 @@ if ($anuser) {
 }
 
 ?>
-				    </dl>
-			    </div>
-		    </div>
-	    </div>
+				    		</dl>
+			    		</div>
+		    		</div>
+	    		</div>
+       		</div>
        </div>
-    <script type="text/javascript"> 
-	$(function() { 
-        $( "#loading" ).hide( );
-		$( "#tabs" ).show( ); 
-		$( "#tabs" ).tabs( ); 
-
-         });
-   </script>
-   <script src="./moodle-ent/js/domain.js" type="text/javascript"></script>
     </body>
 </html>
