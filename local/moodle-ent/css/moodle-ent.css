@@ -105,21 +105,16 @@ dd.course {
     box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.05);
     margin-bottom: 15px;
     padding: 5px;
-    max-width: 690px;
 }
 
-#tabs-1 div.summary_reply.fold_reply {
-    display: none;
+#tabs-1 .summary_reply.fold_reply,
+#tabs-1 .teachers_reply.fold_reply {
+    display: block;
+    padding: 3px 15px;
 }
 
 #tabs-1 .summary {
     margin: 10px;
-}
-
-#tabs-1 .teachers_reply.fold_reply {
-    display: block;
-    padding: 3px 15px;
-    width: 180px;
 }
 
 #tabs-1 .block-hider-show {
@@ -135,7 +130,7 @@ dd.course {
     display: none;
 }
 
-#tabs-1 ul.teachers.folded {
+#tabs-1 .teachers.folded {
     display: none;
 }
 
@@ -146,4 +141,12 @@ dd.course {
 #tabs-1 .categorypath {
     color: #999;
     text-align: right;
+}
+
+#tabs-1 .activity_info {
+	margin: 10px;
+}
+
+#tabs-1 .collapsibleregioninner {
+	display: none;
 }

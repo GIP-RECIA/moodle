@@ -1,56 +1,97 @@
+/*
+ * Sur IE, à chaque fois que l'on clique sur "Afficher le résumé" ou "Afficher les enseignants",
+ * l'évènement $(window).resize est appelé, ce qui peut provoquer une boucle infinie selon les cas.
+ * Pour éviter ce comportement, on vérifie si la largeur du navigateur a été modifiée.  
+ */
+var lastDocumentWidth;
+
 $(function() {
 	$("#loading").hide();
 	$("#tabs").show(); 
 	$("#tabs").tabs();
 	
+	// On affiche les flèches devant "Afficher les enseignants"
+    $("#tabs-1 .block-hider-show").css("background-image", "url('" + themeUrl + "/collapsed')");
+    $("#tabs-1 .block-hider-hide").css("background-image", "url('" + themeUrl + "/expanded')");
+    
+    configDisplay(false);
+    lastDocumentWidth = $(document).width();
+    
+    $(window).resize(function() {
+    	if(window.navigator.appName.indexOf("Internet Explorer") == -1 || $(document).width() != lastDocumentWidth) {
+    		lastDocumentWidth = $(document).width();    
+    		configDisplay(true);
+    	}
+    });
+});
+
+function configDisplay(isResized) {
+	configMenu(isResized);
+	configSummary();
+}
+
+/**
+ * Affiche le menu hamburger selon la taille du module
+ */
+function configMenu(isResized) {
+	var menuIcon 	= $("#hamburger");
+	var menu 		= $("#tab-container");
+	var menuOption 	= $("#tab-container li");
+	var courses 	= $("#main-container");
+	menuOption.unbind("click");
+	
 	// Si l'affichage est large 
 	if($("#tabs").width() >= 944) {
 		
 		// On masque le menu hamburger
-		$('#hamburger').css("display", "none");
-		$('#tab-container').css("opacity", "1.0");
-		$('#tab-container').show();
-		$('#main-container').css("margin", "0 0 0 300px");
+		menuIcon.hide();
+		menu.css("opacity", "1.0");
+		menu.show();
+		courses.css("margin", "0 0 0 300px");
 	
 	// Si l'affichage n'est pas très large
 	} else {
-		
+		menuIcon.show();
+		menu.css("opacity", "0.0");
+		menu.hide();
+		courses.css("margin", "0px");
+	
 		// Lorsqu'on clique sur le menu
-		$("#hamburger").click(function() {
-			$("#tab-container").css("position", "fixed");
-			$("#tab-container").css("top", $("#hamburger").offset().top - 4);
-			displayMenu($("#tab-container").is(":hidden"));
-	    });
+		menuIcon.unbind("click");
+		menuIcon.click(function() {
+			menu.css("position", "fixed");
+			menu.css("top", menuIcon.offset().top - 4);
+			displayMenu(menu.is(":hidden"));
+		});
 		
 		// Lorsqu'on clique sur un élément du menu
-	    $("#tab-container li").click(function() {
+		menuOption.click(function() {
 			displayMenu(false);
-	    });
+		});
 	}
-	
+
 	// Si on est en version mobile
 	if($(".ui-mobile").length > 0) {
 		$("div.ui-select:eq(0)").next().css("font-size", "18px"); //On augmente la taille de "Filtrer par profil :"
 	} else {
-		// On replace le filtre par rôle si nécessaire
-		var topSortSelect = $("select[name='sortOrder']").position().top;
-		var topFilterSpan = $("select[name='sortOrder']").next().position().top;
-		var topFilterSelect = $("select[name='sortOrder']").next().next().position().top;
+		// On affiche correctement le filtre par rôle
+		var sortSelect = $("select[name='sortOrder']");
+		sortSelect.css("display", "inline");
+		sortSelect.css("margin-bottom", "0px");
+		var topSortSelect = sortSelect.position().top;
+		var topFilterSpan = sortSelect.next().position().top;
+		var topFilterSelect = sortSelect.next().next().position().top;
 		if(Math.abs(topFilterSpan - topFilterSelect) > 5) {
-			$("select[name='sortOrder']").css("display", "block");
+			sortSelect.show();
 		}
 		if(Math.abs(topSortSelect - topFilterSelect) > 5) {
-			$("select[name='sortOrder']").css("margin-bottom", "10px");					
+			sortSelect.css("margin-bottom", "10px");					
 		}
 	}
 	
-	// On affiche les flèches devant "Afficher les enseignants"
-    $("#tabs-1 .block-hider-show").css("background-image", "url('" + themeUrl + "/collapsed')");
-    $("#tabs-1 .block-hider-hide").css("background-image", "url('" + themeUrl + "/expanded')");
-	
-	// Lorsqu'on clique sur "Afficher les enseignants" 
-    addTeachersEvent();
-});
+	// Lorsqu'on clique sur "Afficher les enseignants"
+	if(!isResized) addTeachersEvent();
+}
 
 /**
  * visible = true : ouvre le menu
@@ -80,18 +121,49 @@ function displayMenu(visible) {
 }
 
 /**
+ * Affiche "Afficher le résumé" selon la taille du module
+ */
+function configSummary() {
+	var summary = $("#tabs-1 div.summary_reply.fold_reply");
+	if($(window).width() >= 760) {
+		summary.hide();
+		summary.next().show();
+	} else {
+		summary.show();
+		summary.next().hide();
+	}
+	addSummaryEvent();
+}
+
+/**
+ * Lorsqu'on clique sur "Afficher le résumé"
+ */
+function addSummaryEvent() {
+	addEvent($("#tabs-1 div.summary_reply.fold_reply"));
+}
+
+/**
  * Lorsqu'on clique sur "Afficher les enseignants"
  */
 function addTeachersEvent() {
-	$("#tabs-1 .teachers_reply.fold_reply").click(function() {
-		if($("#tabs-1 .block-hider-show").is(":visible")) {
-			$("#tabs-1 .block-hider-show").css("display", "none");
-			$("#tabs-1 .block-hider-hide").css("display", "inline");
-			$("#tabs-1 .teachers.folded").css("display", "block");
+	addEvent($("#tabs-1 .teachers_reply.fold_reply"));
+}
+
+function addEvent(tag) {
+	tag.unbind("click");
+	tag.click(function(e) {
+		var tagShow = $(e.currentTarget).find(".block-hider-show");
+		var tagHide = $(e.currentTarget).find(".block-hider-hide");
+		var tagFolded = $(e.currentTarget).next();
+		
+		if(tagShow.is(":visible")) {
+			tagShow.hide();
+			tagHide.show();
+			tagFolded.show();			
 		} else {
-			$("#tabs-1 .block-hider-show").css("display", "inline");
-			$("#tabs-1 .block-hider-hide").css("display", "none");
-			$("#tabs-1 .teachers.folded").css("display", "none");
+			tagShow.show();
+			tagHide.hide();
+			tagFolded.hide();
 		}
 	});
 }

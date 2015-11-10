@@ -311,7 +311,8 @@ if ($anuser) {
     $instance = $DB->get_record('block_instances', array('blockname' => 'course_overview_esco'));
     $block_course_overview_esco = block_instance('course_overview_esco', $instance);
     $renderer = $block_course_overview_esco->page->get_renderer('block_course_overview_esco');
-    $html = $renderer->course_overview_esco($courses);
+    $overviews = block_course_overview_esco_get_overviews($courses);
+    $html = $renderer->course_overview_esco($courses, $overviews);
     
 	// Affichage des cours
 	print($html);
