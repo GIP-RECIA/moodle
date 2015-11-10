@@ -5,7 +5,7 @@ require_once($CFG->dirroot . '/blocks/course_overview_esco/locallib.php');
 
 // Si on est sur la page moodle-ent.php 
 if(preg_match("/moodle-ent.php/", $_SERVER["SCRIPT_NAME"])) {
-	$selectCourses = "div#tabs-1 dt.course";
+	$selectCourses = "div#tabs-1 div.coursebox";
 	$onchange = "sortCourses()";
 	$sortOrder = 1;
 	
@@ -114,6 +114,14 @@ function add_roles($uid, $courses) {
 		// On filtre par rôle
 		filterCourses();
 
+		// Si on est sur la page moodle-ent.php
+		if($("#tabs-1 .summary_reply.fold_reply").is(":visible")) {
+			addSummaryEvent();
+		}
+    	if($("#tabs-1 .teachers_reply.fold_reply").is(":visible")) {
+    		addTeachersEvent();
+    	}
+		
 		return sortOrder;
 	}
 
