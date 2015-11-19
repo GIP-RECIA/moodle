@@ -130,8 +130,8 @@ function add_roles($uid, $courses) {
 	 * sortOrder : ordre de tri selectionné (1, 2, 3 ou 4) 
 	 */
 	function isBefore(sortOrder, courseA, courseB) {
-		var titleA = $(courseA).find("a").text();
-		var titleB = $(courseB).find("a").text();
+		var titleA = $(courseA).find("a").text().toLowerCase();
+		var titleB = $(courseB).find("a").text().toLowerCase();
 		var dateA = $(courseA).find("input:last").attr("value");
 		var dateB = $(courseB).find("input:last").attr("value");
 		if(sortOrder == 1) {
