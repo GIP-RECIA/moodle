@@ -105,6 +105,10 @@ class block_course_overview_esco_renderer extends plugin_renderer_base {
 
             }
 
+            // On ajoute des champs cachés pour pouvoir trier les cours et les filtrer par rôle
+            $html .= html_writer::tag('input', '', array('type' => 'hidden', 'value' => $course->roles_esco));
+            $html .= html_writer::tag('input', '', array('type' => 'hidden', 'value' => $course->timecreated));
+            
             // No need to pass title through s() here as it will be done automatically by html_writer.
             $attributes = array('title' => $course->fullname);
             if ($course->id > 0) {
