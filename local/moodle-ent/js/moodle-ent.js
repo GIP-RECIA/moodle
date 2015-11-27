@@ -72,7 +72,8 @@ function configMenu(isResized) {
 
 	// Si on est en version mobile
 	if($(".ui-mobile").length > 0) {
-		$("div.ui-select:eq(0)").next().css("font-size", "18px"); //On augmente la taille de "Filtrer par profil :"
+// On ne voit pas l'intérêt d'augmenter la taille !!! - CD 20151127
+//		$("div.ui-select:eq(0)").next().css("font-size", "18px"); //On augmente la taille de "Filtrer par profil :"
 	} else {
 		// On affiche correctement le filtre par rôle
 		var sortSelect = $("select[name='sortOrder']");
