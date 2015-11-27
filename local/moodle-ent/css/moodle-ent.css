@@ -6,7 +6,7 @@ div.moodle-courses {
 /* List item representing a moodle course */
 dt.course {
     background: url('../img/moodle-24.png') no-repeat top left;
-    height: 8px;
+/*    height: 8px;*/
     padding-left: 30px;
     padding-bottom: 20px;
 }
@@ -25,5 +25,184 @@ dd.course {
 /* Hide the tabs at the beginning */
 #tabs {
     display: none;
+	border: none;
+	overflow-x: hidden;
+	min-height: 160px;
 }
 
+#tabs ul {
+    border: 1px solid #e3e3e3;
+    border-radius: 2px;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.05);
+    padding-bottom: 5px;
+}
+
+#hamburger {
+    border-radius: 3px 3px 3px 3px;
+    cursor: pointer;
+    display: block;
+    height: 24px;
+    padding: 3px 4px 3px;
+    position: relative;
+    width: 25px;
+    background: #cccccc url("images/ui-bg_highlight-soft_75_cccccc_1x100.png") repeat-x scroll 50% 50%;
+    margin-bottom: 5px;
+}
+
+#hamburger div {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 2px 2px 2px 2px;
+    height: 2px;
+    margin-top: 3px;
+    width: 90%;
+}
+
+#tab-container {
+	display: none;
+	opacity: 0.0;
+	float: left;
+	width: 300px;
+	background: none;
+	border: none;
+	border-bottom: 1px solid #aaaaaa;
+}
+
+#tab-container li,
+#tab-container a {
+	width: 100%;
+	cursor: pointer;
+	background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+	border: medium none;
+	font-weight: normal;
+	color: #4070a1;
+	text-decoration: none;
+}
+
+#tab-container span a {
+	font-size: 90%;
+}
+
+#tab-container a:hover {
+	color: #25b2f3;
+}
+
+#tab-container li.ui-state-active a {
+	font-weight: bold;
+}
+
+/****************************************************************************************************************/
+/*												Mes cours Moodle												*/
+/****************************************************************************************************************/
+
+#tabs-1 {
+	font-family: "open sans",sans-serif;
+	font-size: 14px;
+}
+
+#tabs-1 .header {
+	display: none;
+}
+
+#tabs-1 h4 {
+	font-weight: normal;
+    font-size: 20px;
+    font-family: inherit;
+    margin: 10px 0 10px 0;
+}
+
+#tabs-1 a {
+    font-weight: normal;
+    text-decoration: none;
+    color: #4070a1;
+}
+
+#tabs-1 a:hover {
+    color: #25b2f3;
+}
+
+#tabs-1 .coursebox {
+    width: auto;
+    background-color: #fff;
+    border: 1px solid #e3e3e3;
+    border-radius: 2px;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
+    padding: 5px;
+}
+
+#tabs-1 .summary_reply.fold_reply,
+#tabs-1 .teachers_reply.fold_reply {
+    display: block;
+    padding: 3px 15px;
+}
+
+#tabs-1 .summary {
+    margin: 10px;
+}
+
+#tabs-1 .block-hider-show {
+    background-position: 0 4px;
+    background-repeat: no-repeat;
+    padding-left: 21px;
+}
+
+#tabs-1 .block-hider-hide {
+    background-position: 0 4px;
+    background-repeat: no-repeat;
+    padding-left: 21px;
+    display: none;
+}
+
+#tabs-1 .teachers.folded {
+    display: none;
+}
+
+#tabs-1 li {
+	list-style-type: none;
+}
+
+#tabs-1 .categorypath {
+    color: #999;
+    text-align: right;
+}
+
+#tabs-1 .activity_info {
+	margin: 10px;
+}
+
+#tabs-1 .collapsibleregioninner {
+	display: none;
+}
+/*#main-container #tabs-1, #main-container #tabs-2, #main-container #tabs-3, #main-container #tabs-4 {*/
+#main-container {
+    border: 1px solid #e3e3e3;
+    border-radius: 2px;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.05);
+    padding-bottom: 5px;
+}
+#main-container a {
+    font-weight: normal;
+}
+#main-container select {
+    opacity: 1;
+}
+h2.main-container-title {
+    font-weight: normal;
+    font-size: 95%;
+    color: #ccc !important;
+    margin-top: 5px;
+}
+#main-container #tabs-1, #main-container #tabs-2, #main-container #tabs-3, #main-container #tabs-4 {
+    padding-top: 0;
+}
+.course a {
+    text-decoration: none;
+    color: #4070a1;
+}
+.course a:hover {
+    color: #25b2f3; 
+}
+.up .course_list_esco h1 {
+    color: transparent;
+}
