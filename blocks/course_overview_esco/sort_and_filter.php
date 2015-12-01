@@ -53,7 +53,7 @@ function add_roles($uid, $courses) {
 ?>
 
 <!-- Tri -->
-<select name="sortOrder" onchange=<?= '"'.$onchange.'"' ?>>
+<select name="sortOrder" data-role="none" onchange=<?= '"'.$onchange.'"' ?>>
 	<option value="1" <?= $sortOrder == 1 ? 'selected="selected"' : '' ?>><?= get_string('sortbyfullnameasc', 'block_course_overview_esco') ?></option>
 	<option value="2" <?= $sortOrder == 2 ? 'selected="selected"' : '' ?>><?= get_string('sortbyfullnamedesc', 'block_course_overview_esco') ?></option>
 	<option value="3" <?= $sortOrder == 3 ? 'selected="selected"' : '' ?>><?= get_string('sortbydateasc', 'block_course_overview_esco') ?></option>
@@ -62,7 +62,7 @@ function add_roles($uid, $courses) {
 
 <!-- Filtre -->
 <span style="margin-left: 20px;"><?= get_string('roleType', 'block_course_overview_esco')?> :</span>
-<select name="rolesFilter" onchange="filterCourses()">
+<select name="rolesFilter" data-role="none" onchange="filterCourses()">
 	<option value="all" selected="selected"><?= get_string('roleAll', 'block_course_overview_esco') ?></option>
 	<option value="owner"><?= get_string('roleOwner', 'block_course_overview_esco') ?></option>
 	<option value="teacher"><?= get_string('roleTeacher', 'block_course_overview_esco') ?></option>
