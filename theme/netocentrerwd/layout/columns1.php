@@ -41,5 +41,10 @@ echo $OUTPUT->doctype() ?>
     <?php echo $OUTPUT->standard_end_of_body_html() ?>
 
 </div>
+
+	<script  type="text/javascript" src="/esciti/js/esciti.js"></script>
+	<script  type="text/javascript">
+		if (typeof  InfoENT4esciti != 'undefined') {InfoENT4esciti.callById('body', 'Parcours_Pedagogiques');}
+	</script>
 </body>
 </html>
