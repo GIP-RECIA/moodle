@@ -46,6 +46,7 @@ $string['movecoursehere'] = 'Move course here';
 $string['movetofirst'] = 'Move {$a} course to top';
 $string['moveafterhere'] = 'Move {$a->movingcoursename} course after {$a->currentcoursename}';
 $string['movingcourse'] = 'You are moving: {$a->fullname} ({$a->cancellink})';
+$string['noCourse'] = 'There is no course space in which you are enrolled';
 $string['none'] = 'None';
 $string['numtodisplay'] = 'Number of courses to display: ';
 $string['onlyparentname'] = 'Parent category only';

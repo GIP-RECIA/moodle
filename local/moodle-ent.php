@@ -301,14 +301,19 @@ if ($anuser) {
 
     // Recuperation des cours dans lequel l'utilisateur participe
     $courses = enrol_get_users_courses( $anuser->id, true, 'id, fullname, timecreated', 'fullname ASC' ); //'timecreated' necessaire pour pouvoir trier les cours par date
-    $courses = add_roles($anuser->id, $courses);
-    
-    // Recuperation du bloc "course_overview_esco"
-    $instance = $DB->get_record('block_instances', array('blockname' => 'course_overview_esco'));
-    $block_course_overview_esco = block_instance('course_overview_esco', $instance);
-    $renderer = $block_course_overview_esco->page->get_renderer('block_course_overview_esco');
-    $overviews = block_course_overview_esco_get_overviews($courses);
-    $html = $renderer->course_overview_esco($courses, $overviews);
+    if(!empty($courses)) {    	
+    	$courses = add_roles($anuser->id, $courses);
+	    
+	    // Recuperation du bloc "course_overview_esco"
+	    $instance = $DB->get_record('block_instances', array('blockname' => 'course_overview_esco'));
+	    $block_course_overview_esco = block_instance('course_overview_esco', $instance);
+	    $renderer = $block_course_overview_esco->page->get_renderer('block_course_overview_esco');
+	    $overviews = block_course_overview_esco_get_overviews($courses);
+	    $html = $renderer->course_overview_esco($courses, $overviews);
+    }
+    else {
+		$html = "<p class='no_course'>".get_string('noCourse', 'block_course_overview_esco')."</p>";
+    }
     
 	// Affichage des cours
 	print($html);
