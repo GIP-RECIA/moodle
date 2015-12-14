@@ -10,9 +10,14 @@ $(function() {
 	$("#tabs").show(); 
 	$("#tabs").tabs();
 	
-	// On affiche les flèches devant "Afficher les enseignants"
-    $("#tabs-1 .block-hider-show").css("background-image", "url('" + themeUrl + "/collapsed')");
-    $("#tabs-1 .block-hider-hide").css("background-image", "url('" + themeUrl + "/expanded')");
+	// S'il y a au moins un cours
+	if($("div#tabs-1 div.coursebox").length > 0) {
+		// On affiche les flèches devant "Afficher les enseignants"
+		$("#tabs-1 .block-hider-show").css("background-image", "url('" + themeUrl + "/collapsed')");
+		$("#tabs-1 .block-hider-hide").css("background-image", "url('" + themeUrl + "/expanded')");
+	} else {
+		$("div#tabs-1").html($("div#tabs-1 dl").html()); //On efface le tri et le filtre 
+	}
     
     configDisplay(false);
     lastDocumentWidth = $(document).width();
@@ -70,18 +75,25 @@ function configMenu(isResized) {
 		});
 	}
 
+	var sortSelect = $("select[name='sortOrder']");
+	var filterSelect = sortSelect.next().next();
+	
 	// Si on est en version mobile
 	if($(".ui-mobile").length > 0) {
 // On ne voit pas l'intérêt d'augmenter la taille !!! - CD 20151127
 //		$("div.ui-select:eq(0)").next().css("font-size", "18px"); //On augmente la taille de "Filtrer par profil :"
+		sortSelect.css("padding-top", "5px");
+		sortSelect.css("padding-bottom", "5px");
+		filterSelect.css("padding-top", "5px");
+		filterSelect.css("padding-bottom", "5px");
+		filterSelect.css("margin", "10px");
 	} else {
 		// On affiche correctement le filtre par rôle
-		var sortSelect = $("select[name='sortOrder']");
 		sortSelect.css("display", "inline");
 		sortSelect.css("margin-bottom", "0px");
 		var topSortSelect = sortSelect.position().top;
 		var topFilterSpan = sortSelect.next().position().top;
-		var topFilterSelect = sortSelect.next().next().position().top;
+		var topFilterSelect = filterSelect.position().top;
 		if(Math.abs(topFilterSpan - topFilterSelect) > 5) {
 			sortSelect.show();
 		}

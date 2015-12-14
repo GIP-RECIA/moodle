@@ -100,6 +100,10 @@ dd.course {
 	font-size: 14px;
 }
 
+#tabs-1 .no_course {
+	margin-top: 25px;
+}
+
 #tabs-1 .header {
 	display: none;
 }
