@@ -10,9 +10,14 @@ $(function() {
 	$("#tabs").show(); 
 	$("#tabs").tabs();
 	
-	// On affiche les flèches devant "Afficher les enseignants"
-    $("#tabs-1 .block-hider-show").css("background-image", "url('" + themeUrl + "/collapsed')");
-    $("#tabs-1 .block-hider-hide").css("background-image", "url('" + themeUrl + "/expanded')");
+	// S'il y a au moins un cours
+	if($("div#tabs-1 div.coursebox").length > 0) {
+		// On affiche les flèches devant "Afficher les enseignants"
+		$("#tabs-1 .block-hider-show").css("background-image", "url('" + themeUrl + "/collapsed')");
+		$("#tabs-1 .block-hider-hide").css("background-image", "url('" + themeUrl + "/expanded')");
+	} else {
+		$("div#tabs-1").html($("div#tabs-1 dl").html()); //On efface le tri et le filtre 
+	}
     
     configDisplay(false);
     lastDocumentWidth = $(document).width();

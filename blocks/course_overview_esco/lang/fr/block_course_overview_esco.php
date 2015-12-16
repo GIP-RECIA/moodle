@@ -49,6 +49,7 @@ $string['movecourse'] = 'Déplacement du cours {$a}';
 $string['movecoursehere'] = 'Déplacer le cours ici';
 $string['movetofirst'] = 'Déplacer le cours {$a} tout en haut';
 $string['movingcourse'] = 'Vous être en train de déplacer {$a->fullname} ({$a->cancellink})';
+$string['noCourse'] = 'Vous n\'êtes inscrit(e) a aucun espace de cours';
 $string['none'] = 'Aucune';
 $string['numtodisplay'] = 'Nombre de cours à afficher :';
 $string['onlyparentname'] = 'Catégories parentes seulement';

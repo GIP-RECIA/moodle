@@ -28,23 +28,25 @@ if(preg_match("/moodle-ent.php/", $_SERVER["SCRIPT_NAME"])) {
 function add_roles($uid, $courses) {
 	global $DB;
 
-	$sql = "SELECT c.instanceid AS courseid, GROUP_CONCAT(r.shortname SEPARATOR ', ') AS roles
-    		FROM {role} r
-    		JOIN {role_assignments} ra ON ra.roleid = r.id
-    		JOIN {context} c ON c.id = ra.contextid
-    		WHERE ra.userid = ?
-    		AND c.instanceid in (";
-
-	$params = array($uid);
-	foreach ($courses as $course) {
-		$sql .= ",?";
-		$params[] = $course->id;
-	}
-	$sql = preg_replace('/\(,/', '(', $sql, 1).") GROUP BY c.instanceid";
-
-	$roleassignments = $DB->get_records_sql($sql, $params);
-	foreach ($courses as $course) {
-		$course->roles_esco = $roleassignments[$course->id]->roles;
+	if(!empty($courses)) {		
+		$sql = "SELECT c.instanceid AS courseid, GROUP_CONCAT(r.shortname SEPARATOR ', ') AS roles
+	    		FROM {role} r
+	    		JOIN {role_assignments} ra ON ra.roleid = r.id
+	    		JOIN {context} c ON c.id = ra.contextid
+	    		WHERE ra.userid = ?
+	    		AND c.instanceid in (";
+	
+		$params = array($uid);
+		foreach ($courses as $course) {
+			$sql .= ",?";
+			$params[] = $course->id;
+		}
+		$sql = preg_replace('/\(,/', '(', $sql, 1).") GROUP BY c.instanceid";
+	
+		$roleassignments = $DB->get_records_sql($sql, $params);
+		foreach ($courses as $course) {
+			$course->roles_esco = $roleassignments[$course->id]->roles;
+		}
 	}
 
 	return $courses;
