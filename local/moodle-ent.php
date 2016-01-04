@@ -309,7 +309,9 @@ if ($anuser) {
 	    $block_course_overview_esco = block_instance('course_overview_esco', $instance);
 	    $renderer = $block_course_overview_esco->page->get_renderer('block_course_overview_esco');
 	    $overviews = block_course_overview_esco_get_overviews($courses);
-	    $html = $renderer->course_overview_esco($courses, $overviews);
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+	    //$html = $renderer->course_overview_esco($courses, $overviews);
+	    $html = $renderer->course_overview_esco($courses, $overviews, true);
     }
     else {
 		$html = "<p class='no_course'>".get_string('noCourse', 'block_course_overview_esco')."</p>";

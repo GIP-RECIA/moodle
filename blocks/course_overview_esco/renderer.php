@@ -38,7 +38,9 @@ class block_course_overview_esco_renderer extends plugin_renderer_base {
      * @param array $overviews list of course overviews
      * @return string html to be displayed in course_overview_esco block
      */
-    public function course_overview_esco($courses, $overviews) {
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+    //public function course_overview_esco($courses, $overviews) {
+    public function course_overview_esco($courses, $overviews , $is_WPPortlet = false) {
         $html = '';
         $config = get_config('block_course_overview_esco');
         // Début modification RECIA
@@ -110,7 +112,12 @@ class block_course_overview_esco_renderer extends plugin_renderer_base {
             $html .= html_writer::tag('input', '', array('type' => 'hidden', 'value' => $course->timecreated));
             
             // No need to pass title through s() here as it will be done automatically by html_writer.
+            
             $attributes = array('title' => $course->fullname);
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+	    if ($is_WPPortlet) {
+		$attributes['target'] = '_blank';
+	    }
             if ($course->id > 0) {
                 if (empty($course->visible)) {
                     $attributes['class'] = 'dimmed';
@@ -134,7 +141,9 @@ class block_course_overview_esco_renderer extends plugin_renderer_base {
 
             // Début modification RECIA - Ajout du résumé et des enseignants
             $renderer = new esco_course_renderer($this->page, null);
-            $html .= $renderer->get_course_content($course);
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+            //$html .= $renderer->get_course_content($course);
+            $html .= $renderer->get_course_content($course, $is_WPPortlet);
             // Fin modification RECIA
 
             $html .= html_writer::end_tag('div');
@@ -148,7 +157,9 @@ class block_course_overview_esco_renderer extends plugin_renderer_base {
 
             // If user is moving courses, then down't show overview.
             if (isset($overviews[$course->id]) && !$ismovingcourse) {
-                $html .= $this->activity_display($course->id, $overviews[$course->id]);
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+                //$html .= $this->activity_display($course->id, $overviews[$course->id]);
+                $html .= $this->activity_display($course->id, $overviews[$course->id], $is_WPPortlet);
             }
 
             if ($config->showcategories != BLOCKS_COURSE_OVERVIEW_ESCO_SHOWCATEGORIES_NONE) {
@@ -225,13 +236,20 @@ class block_course_overview_esco_renderer extends plugin_renderer_base {
      * @param array $overview overview of activities in course
      * @return string html of activities overview
      */
-    protected function activity_display($cid, $overview) {
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+    //protected function activity_display($cid, $overview) {
+    protected function activity_display($cid, $overview, $is_WPPortlet = false) {
         $output = html_writer::start_tag('div', array('class' => 'activity_info'));
         foreach (array_keys($overview) as $module) {
             $output .= html_writer::start_tag('div', array('class' => 'activity_overview'));
             $url = new moodle_url("/mod/$module/index.php", array('id' => $cid));
             $modulename = get_string('modulename', $module);
-            $icontext = html_writer::link($url, $this->output->pix_icon('icon', $modulename, 'mod_'.$module, array('class'=>'iconlarge')));
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+	    if ($is_WPPortlet) {
+              $icontext = html_writer::link($url, $this->output->pix_icon('icon', $modulename, 'mod_'.$module, array('class'=>'iconlarge')), array('target'=>'_blank'));
+	    } else {
+              $icontext = html_writer::link($url, $this->output->pix_icon('icon', $modulename, 'mod_'.$module, array('class'=>'iconlarge')));
+	    }
             if (get_string_manager()->string_exists("activityoverview", $module)) {
                 $icontext .= get_string("activityoverview", $module);
             } else {

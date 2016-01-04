@@ -29,11 +29,15 @@ class esco_course_renderer extends core_course_renderer {
      * @param the course to render content
      * @ return string
      */
-    public function get_course_content(stdClass $course) {
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+    //public function get_course_content(stdClass $course) {
+    public function get_course_content(stdClass $course, $is_WPPortlet = false) {
         $content = '';
         $chelper = new coursecat_helper();
         $chelper->set_show_courses(self::COURSECAT_SHOW_COURSES_EXPANDED);
-        $content .= $this->coursecat_coursebox_content($chelper, $course);
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+        //$content .= $this->coursecat_coursebox_content($chelper, $course);
+        $content .= $this->coursecat_coursebox_content($chelper, $course, $is_WPPortlet);
         return $content;
     }
 
@@ -46,7 +50,9 @@ class esco_course_renderer extends core_course_renderer {
      * @param stdClass|course_in_list $course
      * @return string
      */
-    function coursecat_coursebox_content(coursecat_helper $chelper, $course) {
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+    //function coursecat_coursebox_content(coursecat_helper $chelper, $course) {
+    function coursecat_coursebox_content(coursecat_helper $chelper, $course, $is_WPPortlet = false) {
         global $CFG;
         if ($chelper->get_show_courses() < self::COURSECAT_SHOW_COURSES_EXPANDED) {
             return '';
@@ -112,10 +118,18 @@ class esco_course_renderer extends core_course_renderer {
             }
             // Fin modifications RECIA
             foreach ($teachers as $userid => $coursecontact) {
-                $name = $coursecontact['rolename'].': '.
+// Modif RECIA-CD - 20160201 => pour affichage des liens dans nouvel onglet avec la WebProxyPortlet
+		if ($is_WPPortlet) {
+                  $name = $coursecontact['rolename'].': '.
+                        html_writer::link(new moodle_url('/user/view.php',
+                                array('id' => $userid, 'course' => SITEID)),
+                            $coursecontact['username'], array('target' => '_blank'));
+		} else {
+                  $name = $coursecontact['rolename'].': '.
                         html_writer::link(new moodle_url('/user/view.php',
                                 array('id' => $userid, 'course' => SITEID)),
                             $coursecontact['username']);
+		}
                 $content .= html_writer::tag('li', $name);
             }
             $content .= html_writer::end_tag('ul'); // .teachers
