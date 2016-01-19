@@ -1,3 +1,5 @@
+var wwwroot = window.location.pathname.split("/")[1];
+
 /**
  * Affichage de l'option dans la page
  */
@@ -5,7 +7,7 @@ $(function() {
 	// On regarde le rôle de l'utilisateur
 	$.ajax({
 		type: "GET",
-	    url: "../local/additionalhtmlfooter/advanced_user.php",
+	    url: "/" + wwwroot + "/local/additionalhtmlfooter/advanced_user.php",
 	    async: false,
 	    success: function(data, textStatus, jqXHR) {
 	    	var json = JSON.parse(data);
@@ -19,7 +21,7 @@ $(function() {
 	    		var menu = $("header ul.pull-right ul.dropdown-menu:first hr.hr_menu:last").parent();
 	    		menu.before("<li>"
 	    				+ "		<a onclick='changeUserRole()'>"
-	    				+ "			<img class='profileicon' src='../pix/i/switchrole.png'>"
+	    				+ "			<img class='profileicon' src='/" + wwwroot + "/pix/i/switchrole.png'>"
 	    				+ 			getText("changer_role", advancedUser)
 	    				+ "		</a>"
 	    				+ "	</li>");
@@ -30,6 +32,23 @@ $(function() {
 	    					"	<input type='submit' onclick='changeUserRole()' value='" + getText("changer_role", advancedUser) + "'>" +
 	    			"</div>");
 	    		}
+	    	}
+	    	
+	    	// On ouvre la popup du choix des activités/ressources si necessaire
+	    	var section = new RegExp("section=([-\\w]+)").exec(window.location.search);
+	    	if(section != null) {
+	    		// Timeout nécessaire pour Chrome & IE
+	    		setTimeout(function() {
+	    			$("li#" + section[1] + " span.section-modchooser-text").click();
+	    			
+	    			// Cas de Safari
+	    			if($("div.alloptions").is(":hidden")) {
+	    				var elt = $("li#" + section[1] + " span.section-modchooser-text")[0];
+	    				var evObj = document.createEvent('MouseEvents');
+	    				evObj.initMouseEvent('click', true, true, window);
+	    				elt.dispatchEvent(evObj);
+	    			}
+	    		}, 500);
 	    	}
 	    }
 	});
@@ -46,7 +65,7 @@ $("span.section-modchooser-link").on("click", function() {
 	// On ajoute l'option dans le choix des activités/ressources
 	var advancedUser = $("div.alloptions a[onclick='changeUserRole()']");
 	if(advancedUser.length == 0) {		
-		var text = $("header ul.pull-right ul.dropdown-menu:first img[src='../pix/i/switchrole.png']").parent().text().trim();
+		var text = $("header ul.pull-right ul.dropdown-menu:first img[src='/" + wwwroot + "/pix/i/switchrole.png']").parent().text().trim();
 		$("div.alloptions").prepend("<div style='padding: 10px; background-color: #FFFFFF;'>"
 				+ "		<a onclick='changeUserRole()'>"
 				+ "			<img class='profileicon' src='../pix/i/switchrole.png'>"
@@ -64,14 +83,14 @@ $("form#chooserform").on("submit", function() {
  * Change le rôle de l'utilisateur (enseignant standard ou avancé)
  */
 function changeUserRole() {
-	var text = $("header ul.pull-right ul.dropdown-menu:first img[src='../pix/i/switchrole.png']").parent().text().trim();
+	var text = $("header ul.pull-right ul.dropdown-menu:first img[src='/" + wwwroot + "/pix/i/switchrole.png']").parent().text().trim();
 	var advancedUser = text == getText("changer_role", "0") ? "0" : "1";
 	
 	// Si l'utilisateur confirme son choix
 	if(confirm(getText("confirmer_role", advancedUser)) == true) {
 		$.ajax({
 			type: "GET",
-			url: "../local/additionalhtmlfooter/advanced_user.php?change",
+			url: "/" + wwwroot + "/local/additionalhtmlfooter/advanced_user.php?change",
 			async: false,
 			success: function(data, textStatus, jqXHR) {
 				var json = JSON.parse(data);
@@ -79,7 +98,7 @@ function changeUserRole() {
 		    	messages = json.messages;
 				
 				// On met à jour le texte dans le menu en haut à droite
-				$("header ul.pull-right ul.dropdown-menu:first img[src='../pix/i/switchrole.png']").parent().html("<img class='profileicon' src='../pix/i/switchrole.png'>" + getText("changer_role", advancedUser));
+				$("header ul.pull-right ul.dropdown-menu:first img[src='/" + wwwroot + "/pix/i/switchrole.png']").parent().html("<img class='profileicon' src='/" + wwwroot + "/pix/i/switchrole.png'>" + getText("changer_role", advancedUser));
 				
 				// On met à jour le bouton si on est dans la page du profil
 				if(window.location.pathname.indexOf("user/profile.php") > -1) {
@@ -106,27 +125,6 @@ function changeUserRole() {
 	// On replie le menu en haut à droite
 	$("header ul.pull-right").click();
 }
-
-/**
- * Ouvre la popup du choix des activités/ressources si necessaire
- */
-$(window).load(function() {
-	var section = new RegExp("section=([-\\w]+)").exec(window.location.search);
-	if(section != null) {
-		// Timeout nécessaire pour Chrome & IE
-		setTimeout(function() {
-			$("li#" + section[1] + " span.section-modchooser-text").click();
-			
-			// Cas de Safari
-			if($("div.alloptions").is(":hidden")) {
-				var elt = $("li#" + section[1] + " span.section-modchooser-text")[0];
-				var evObj = document.createEvent('MouseEvents');
-				evObj.initMouseEvent('click', true, true, window);
-				elt.dispatchEvent(evObj);
-			}
-		}, 500);
-	}
-});
 
 /************************************************************************************************************************/
 /**											GESTION DES MESSAGES SELON LA LANGUE										*/
