@@ -28,6 +28,19 @@ $(function() {
     		configDisplay(true);
     	}
     });
+    
+    // Lorsqu'on clique sur "Il y a de nouveaux messages de forum"
+    $("img.iconlarge").parent().attr("href", "#");
+    $("img.iconlarge").parent().removeAttr("target");
+    $("img.iconlarge").click(function() {
+    	var div = $(this).parent().parent().next();
+    	if(div.is(":visible")) {
+    		div.hide();
+    	} else {
+    		div.find("a").attr("target", "_blank");
+    		div.show();
+    	}
+    });
 });
 
 function configDisplay(isResized) {
