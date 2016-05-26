@@ -108,7 +108,17 @@ class enrol_manual_plugin extends enrol_plugin {
         global $OUTPUT;
 
         $context = context_course::instance($instance->courseid);
-
+	
+		////////////////////////////////////////////////
+		// MODIFICATION RECIA | DEBUT | 2015-02-23
+		////////////////////////////////////////////////
+        // Only site administrator can access the management interface
+        if($context == null or ! has_capability('moodle/site:config', $context)) {
+            return false;
+        }
+		////////////////////////////////////////////////
+		// MODIFICATION RECIA | FIN
+		////////////////////////////////////////////////
         $icons = array();
         if (has_capability('enrol/manual:enrol', $context) or has_capability('enrol/manual:unenrol', $context)) {
             $managelink = new moodle_url("/enrol/manual/manage.php", array('enrolid'=>$instance->id));
