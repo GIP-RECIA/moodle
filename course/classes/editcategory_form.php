@@ -63,20 +63,53 @@ class core_course_editcategory_form extends moodleform {
             $options += coursecat::make_categories_list('moodle/category:manage');
             $strsubmit = get_string('createcategory');
         }
-
-        $mform->addElement('select', 'parent', get_string('parentcategory'), $options);
-
-        $mform->addElement('text', 'name', get_string('categoryname'), array('size' => '30'));
-        $mform->addRule('name', get_string('required'), 'required', null);
-        $mform->setType('name', PARAM_TEXT);
-
-        $mform->addElement('text', 'idnumber', get_string('idnumbercoursecategory'), 'maxlength="100" size="10"');
+	
+	        // MODIFICATION RECIA - DEBUT
+		//ENT-CRA on interdit la modification du nom des categories de niveau 1
+        $categoryNiveauSup = new stdClass();
+        $categoryNiveauSup->id = '0';
+        $categorieNiveau1 = false;
+        if ($categories = coursecat::get(0)->get_children()) {
+        	foreach ($categories as $cat) {
+        		if($cat->id == $categoryid){
+        			$categorieNiveau1 = true;
+        			break;
+        		}
+        	}
+        }
+		if ($categorieNiveau1 ){
+			$options = array();
+			$options[0] = get_string('top');
+			$mform->addElement('select', 'parent', get_string('parentcategory'), $options);
+			$mform->addElement('text', 'name', get_string('categoryname'), array('size'=>'30','readonly'=>'true','disabled'=>'disabled'));
+			$mform->addRule('name', get_string('required'), 'required', null);
+			$mform->setType('name', PARAM_TEXT);
+			$mform->addElement('text', 'idnumber', get_string('idnumbercoursecategory'),'maxlength="100"  size="10"');
+		} else {
+		    $mform->addElement('select', 'parent', get_string('parentcategory'), $options);
+		    $mform->addElement('text', 'name', get_string('categoryname'), array('size'=>'30'));
+		    $mform->addRule('name', get_string('required'), 'required', null);
+		    $mform->setType('name', PARAM_TEXT);
+			$mform->addElement('text', 'idnumber', get_string('idnumbercoursecategory'),'maxlength="100"  size="10"');
+		}
+        // MODIFICATION RECIA - FIN
+	
         $mform->addHelpButton('idnumber', 'idnumbercoursecategory');
         $mform->setType('idnumber', PARAM_RAW);
 
         $mform->addElement('editor', 'description_editor', get_string('description'), null,
             $this->get_description_editor_options());
 
+        
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-08-30
+        ////////////////////////////////////////////////
+/* GIP RECIA - CD - 30/08/2013 - Partie mise en commentaire
+   Raison de la mise en commentaire : pour pouvoir avoir les thèmes associés aux établissements dans les catégories,
+                                      on est obligé de laisser la propriété "Autoriser les thèmes de catégories" à "oui" 
+                                      dans "Administration du site-> Présentation->Thèmes->Réglages thème".
+                                      On doit donc désactiver l'affichage du choix du thème ici pour que les
+                                      administrateurs délégués ne choisissent pas des thèmes non compatibles.
         if (!empty($CFG->allowcategorythemes)) {
             $themes = array(''=>get_string('forceno'));
             $allthemes = get_list_of_themes();
@@ -86,7 +119,10 @@ class core_course_editcategory_form extends moodleform {
                 }
             }
             $mform->addElement('select', 'theme', get_string('forcetheme'), $themes);
-        }
+        } */
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
 
         $mform->addElement('hidden', 'id', 0);
         $mform->setType('id', PARAM_INT);
