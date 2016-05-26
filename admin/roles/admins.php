@@ -31,9 +31,15 @@ $confirmdel = optional_param('confirmdel', 0, PARAM_INT);
 $PAGE->set_url('/admin/roles/admins.php');
 
 admin_externalpage_setup('admins');
-if (!is_siteadmin()) {
-    die;
-}
+////////////////////////////////////////////////
+// MODIFICATION RECIA | DEBUT | 2015-02-23
+////////////////////////////////////////////////
+//if (!is_siteadmin()) {
+    die("Cette fonction est desactivée dans l'ENT NetOCentre.");
+//}
+////////////////////////////////////////////////
+// MODIFICATION RECIA | FIN
+////////////////////////////////////////////////
 
 $admisselector = new core_role_admins_existing_selector();
 $admisselector->set_extra_fields(array('username', 'email'));
