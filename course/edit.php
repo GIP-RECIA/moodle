@@ -163,13 +163,22 @@ if ($editform->is_cancelled()) {
 
         // Get the context of the newly created course.
         $context = context_course::instance($course->id, MUST_EXIST);
-
-        if (!empty($CFG->creatornewroleid) and !is_viewing($context, NULL, 'moodle/role:assign') and !is_enrolled($context, NULL, 'moodle/role:assign')) {
+	
+	////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-04-12
+        ////////////////////////////////////////////////
+        //ENT-CRA - on assigne le role d'enseignant
+        //if (!empty($CFG->creatornewroleid) and !is_viewing($context, NULL, 'moodle/role:assign') and !is_enrolled($context, NULL, 'moodle/role:assign')) {
             // Deal with course creators - enrol them internally with default role.
             // Note: This does not respect capabilities, the creator will be assigned the default role.
             // This is an expected behaviour. See MDL-66683 for further details.
             enrol_try_internal_enrol($course->id, $USER->id, $CFG->creatornewroleid);
-        }
+        //}
+	
+	enrol_try_internal_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
 
         // The URL to take them to if they chose save and display.
         $courseurl = new moodle_url('/course/view.php', array('id' => $course->id));
