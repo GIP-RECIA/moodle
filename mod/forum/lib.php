@@ -756,7 +756,9 @@ function forum_cron() {
                 $userfrom->customheaders = array (
                     // Headers to make emails easier to track.
                     'List-Id: "'        . $cleanforumname . '" ' . generate_email_messageid('moodleforum' . $forum->id),
-                    'List-Help: '       . $CFG->wwwroot . '/mod/forum/view.php?f=' . $forum->id,
+					/*Remplacement RECIA
+                    			'List-Help: '       . $CFG->wwwroot . '/mod/forum/view.php?f=' . $forum->id,
+					Fin Remplacement RECIA */
                     'Message-ID: '      . forum_get_email_message_id($post->id, $userto->id),
                     'X-Course-Id: '     . $course->id,
                     'X-Course-Name: '   . format_string($course->fullname, true),
