@@ -1435,7 +1435,9 @@ class global_navigation extends navigation_node {
         // If we are going to show all courses AND we are showing categories then
         // to save us repeated DB calls load all of the categories now
         if ($this->show_categories()) {
-            $this->load_all_categories($toload);
+	   // MODIFICATION RECIA -DEBUT
+            //$this->load_all_categories($toload);
+	   // MODIFICATION RECIA - FIN
         }
 
         // Will be the return of our efforts
