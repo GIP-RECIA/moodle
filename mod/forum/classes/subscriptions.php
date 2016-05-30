@@ -258,6 +258,7 @@ class subscriptions {
      * @param string $sort sort order. As for get_users_by_capability.
      * @return array list of users.
      */
+	/* Modification GIP RECIA pour prise en compte des différents domaines */
     public static function get_potential_subscribers($context, $groupid, $fields, $sort = '') {
         global $DB;
 
@@ -267,12 +268,22 @@ class subscriptions {
             list($sort, $sortparams) = users_order_by_sql('u');
             $params = array_merge($params, $sortparams);
         }
-
+	/* Remplacement RECIA
         $sql = "SELECT $fields
                 FROM {user} u
                 JOIN ($esql) je ON je.id = u.id
             ORDER BY $sort";
-
+	 Fin remplacement RECIA */
+	$sql = "SELECT $fields, uid.domaine
+                 FROM {user} u
+ 	            JOIN ($esql) je ON je.id = u.id
+ 	            LEFT JOIN (
+                     SELECT userid, data domaine 
+                     FROM {user_info_data} uid 
+                     JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                     WHERE uif.name = 'Domaine'
+                 ) uid ON uid.userid = u.id
+ 	            ORDER BY $sort";
         return $DB->get_records_sql($sql, $params);
     }
 
