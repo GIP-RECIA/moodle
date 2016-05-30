@@ -228,16 +228,54 @@ function resource_get_coursemodule_info($coursemodule) {
     $display = resource_get_final_display_type($resource);
 
     if ($display == RESOURCELIB_DISPLAY_POPUP) {
-        $fullurl = "$CFG->wwwroot/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
+	////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-09-11
+        ////////////////////////////////////////////////
+        // Ancien code :
+        //$fullurl = "$CFG->wwwroot/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
+        // Nouveau code :
+        $fullurl = "$CFG->webpath/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
         $options = empty($resource->displayoptions) ? array() : unserialize($resource->displayoptions);
         $width  = empty($options['popupwidth'])  ? 620 : $options['popupwidth'];
         $height = empty($options['popupheight']) ? 450 : $options['popupheight'];
         $wh = "width=$width,height=$height,toolbar=no,location=no,menubar=no,copyhistory=no,status=no,directories=no,scrollbars=yes,resizable=yes";
-        $info->onclick = "window.open('$fullurl', '', '$wh'); return false;";
+	////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-09-11
+        ////////////////////////////////////////////////
+        // Ancien code :
+        //$info->onclick = "window.open('$fullurl', '', '$wh'); return false;";
+	
+        // Nouveau code :
+        $info->onclick = "var href = document.domain; window.open( 'https://' + href + '$fullurl', '', '$wh'); return false;";
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
 
     } else if ($display == RESOURCELIB_DISPLAY_NEW) {
-        $fullurl = "$CFG->wwwroot/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
-        $info->onclick = "window.open('$fullurl'); return false;";
+	////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-09-11
+        ////////////////////////////////////////////////
+        // Ancien code :
+        //$fullurl = "$CFG->wwwroot/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
+	// Nouveau code :
+        $fullurl = "$CFG->webpath/mod/resource/view.php?id=$coursemodule->id&amp;redirect=1";
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
+	
+	////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-09-11
+        ////////////////////////////////////////////////
+        // Ancien code :
+        //$info->onclick = "window.open('$fullurl'); return false;";
+	// Nouveau code :
+        $info->onclick = "var href = document.domain; window.open( 'https://' + href + '$fullurl'); return false;";
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
 
     }
 
