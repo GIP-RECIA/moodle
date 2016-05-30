@@ -3097,10 +3097,23 @@ class global_navigation_for_ajax extends global_navigation {
                     $this->add_category($category, $basecategory, $nodetype);
                 }
             }
+	            // MODIFICATION RECIA - DEBUT
+ 		    //LEA 
+ 		    $mycourses = enrol_get_my_courses();
+ 		    $ids=array();
+ 		    foreach($mycourses as $mycourse){
+ 		    	$ids[] = $mycourse->id;
+ 				$this->add_course($mycourse, true, self::COURSE_MY);
+ 		    }
+ 		    
             $courses = $DB->get_recordset('course', array('category' => $categoryid), 'sortorder', '*' , 0, $limit);
             foreach ($courses as $course) {
-                $this->add_course($course);
+		if (in_array($course->id, $ids)){
+                	$this->add_course($course);
+			}
             }
+			//LEA
+            // MODIFICATION RECIA - FIN
             $courses->close();
         }
     }
