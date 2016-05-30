@@ -1706,9 +1706,36 @@ class global_navigation extends navigation_node {
             if (array_key_exists($category->id, $this->addedcategories)) {
                 // Do nothing
             } else if ($category->parent == '0') {
-                $this->add_category($category, $this->rootnodes['courses']);
+		// MODIFICATION RECIA - DEBUT
+               // $this->add_category($category, $this->rootnodes['courses']);
+		$limit = 20;
+             	if (!empty($CFG->navcourselimit)) {
+             		$limit = $CFG->navcourselimit;
+             	}
+             	$mycourses = enrol_get_my_courses(NULL, 'visible DESC,sortorder ASC', $limit);
+             	if($ismycourse){
+             		$this->add_category($category, $this->rootnodes['mycourses']);
+             	}else{
+                 	$this->add_category($category, $this->rootnodes['courses']);
+             	}
+                 // MODIFICATION RECIA - FIN
             } else if (array_key_exists($category->parent, $this->addedcategories)) {
-                $this->add_category($category, $this->addedcategories[$category->parent]);
+		// MODIFICATION RECIA - DEBUT
+                //$this->add_category($category, $this->addedcategories[$category->parent]);
+		//Modifier pour l'ENT-CRA
+             	$mycourses = enrol_get_my_courses(NULL, 'visible DESC,sortorder ASC', $limit);
+             	if(!empty($mycourses)){
+ 	            	foreach ($mycourses as $cours) {
+ 	            		if($cours->category == $category->id ){
+ 	            			$this->add_category($category, $this->addedcategories[$category->parent]);
+ 	            		}else if(!$ismycourse){
+ 	            			$this->add_category($category, $this->addedcategories[$category->parent]);
+ 	            		}
+ 	            	}
+             	}else {
+             		$this->add_category($category, $this->addedcategories[$category->parent]);
+             	}
+                 // MODIFICATION RECIA - FIN
             } else {
                 // This category isn't in the navigation and niether is it's parent (yet).
                 // We need to go through the category path and add all of its components in order.
