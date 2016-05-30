@@ -242,8 +242,9 @@ function resourcelib_embed_pdf($fullurl, $title, $clicktoopen) {
 EOT;
 
     // the size is hardcoded in the boject obove intentionally because it is adjusted by the following function on-the-fly
-    $PAGE->requires->js_init_call('M.util.init_maximised_embed', array('resourceobject'), true);
-
+    // Modification RECIA - DEBUT
+    //$PAGE->requires->js_init_call('M.util.init_maximised_embed', array('resourceobject'), true);
+    // Modification RECIA - FIN
     return $code;
 }
 
