@@ -3997,7 +3997,17 @@ class settings_navigation extends navigation_node {
             $url = new moodle_url('/course/reset.php', array('id'=>$course->id));
             $coursenode->add(get_string('reset'), $url, self::TYPE_SETTING, null, 'reset', new pix_icon('i/return', ''));
         }
-
+	 ////////////////////////////////////////////////
+         // MODIFICATION RECIA | DEBUT | 2013-06-27
+         ////////////////////////////////////////////////
+         // Delete this course
+         if (has_capability('moodle/course:delete', $coursecontext)) {
+             $url = new moodle_url('/course/delete-for-user.php', array('id'=>$course->id));
+             $coursenode->add(get_string('delete'), $url, self::TYPE_SETTING, null, null, new pix_icon('t/delete', ''));
+         }
+         ////////////////////////////////////////////////
+         // MODIFICATION RECIA | FIN
+         ////////////////////////////////////////////////
         // Questions
         require_once($CFG->libdir . '/questionlib.php');
         question_extend_settings_navigation($coursenode, $coursecontext)->trim_if_empty();
