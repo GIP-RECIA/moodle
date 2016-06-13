@@ -354,7 +354,12 @@ function useredit_shared_definition(&$mform, $editoroptions, $filemanageroptions
         $mform->addElement('select', 'calendartype', get_string('preferredcalendar', 'calendar'), $calendartypes);
         $mform->setDefault('calendartype', $CFG->calendartype);
     }
-
+/*	 GIP RECIA - CD - 28/08/2013 - Partie mise en commentaire
+   Raison de la mise en commentaire : pour pouvoir avoir les thèmes associés aux utilisateurs (établissement courant)
+                                      sur les pages du site qui ne sont pas dans des catégories, on est obligé de laisser 
+				      la propriété "Autoriser les thèmes utilisateur" à "oui" dans 
+				      "Administration du site-> Présentation->Thèmes->Réglages thème".
+				      On doit donc désactiver l'affichage du choix du thème ici.
     if (!empty($CFG->allowuserthemes)) {
         $choices = array();
         $choices[''] = get_string('default');
@@ -366,7 +371,7 @@ function useredit_shared_definition(&$mform, $editoroptions, $filemanageroptions
         }
         $mform->addElement('select', 'theme', get_string('preferredtheme'), $choices);
     }
-
+*/
     $mform->addElement('editor', 'description_editor', get_string('userdescription'), null, $editoroptions);
     $mform->setType('description_editor', PARAM_CLEANHTML);
     $mform->addHelpButton('description_editor', 'userdescription');
