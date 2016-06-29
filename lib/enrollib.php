@@ -935,6 +935,24 @@ function enrol_try_internal_enrol($courseid, $userid, $roleid = null, $timestart
 
     return true;
 }
+// MODIF RECIA 
+//CREATION FUNCTION ENROLLEMENT AVEC LA METHODE SIMPLEESCO VU QUE LA FONCTION ENROLLEMENT DE MOODLE CODE EN DUR LA METHODE MANUELLE
+
+function enrol_try_simplesco_enrol ($courseid, $userid, $roleid=null, $timestart = 0, $timeend =0){
+         global $DB;
+
+        if (!$enrol = enrol_get_plugin('simplesco')){
+                error_log("CAN'T REACH SIMPLESCO PLUGIN");
+                return false;
+        }
+        if(!$instances = $DB->get_records('enrol', array('enrol'=>'simplesco', 'courseid'=>$courseid, 'status'=>ENROL_INSTANCE_ENABLED), 'sortorder, id ASC')){
+                error_log("NO INSTANCE OF SIMPLESCO PLUGIN FOUND");
+                return false;
+        }
+        $instance = reset($instances);
+        $enrol->enrol_user($instance, $userid, $roleid, $timestart, $timeend);
+}
+// FIN MODIF RECIA
 
 /**
  * Is there a chance users might self enrol
