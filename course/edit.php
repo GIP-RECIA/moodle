@@ -184,10 +184,11 @@ if ($editform->is_cancelled()) {
             // Deal with course creators - enrol them internally with default role.
             // Note: This does not respect capabilities, the creator will be assigned the default role.
             // This is an expected behaviour. See MDL-66683 for further details.
-            enrol_try_internal_enrol($course->id, $USER->id, $CFG->creatornewroleid);
+            //enrol_try_internal_enrol($course->id, $USER->id, $CFG->creatornewroleid);
+            enrol_try_simpesco_enrol($course->id, $USER->id, $CFG->creatornewroleid);
         //}
 	
-	    enrol_try_internal_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
+	    enrol_try_simplesco_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
         ////////////////////////////////////////////////
         // MODIFICATION RECIA | FIN
         ////////////////////////////////////////////////
