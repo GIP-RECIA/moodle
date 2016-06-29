@@ -165,10 +165,10 @@ if ($editform->is_cancelled()) {
         //ENT-CRA - on assigne le role d'enseignant
         //if (!empty($CFG->creatornewroleid) and !is_viewing($context, NULL, 'moodle/role:assign') and !is_enrolled($context, NULL, 'moodle/role:assign')) {
             // Deal with course creators - enrol them internally with default role.
-            enrol_try_internal_enrol($course->id, $USER->id, $CFG->creatornewroleid);
+            enrol_try_simpesco_enrol($course->id, $USER->id, $CFG->creatornewroleid);
         //}
 	
-	enrol_try_internal_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
+	enrol_try_simplesco_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
         ////////////////////////////////////////////////
         // MODIFICATION RECIA | FIN
         ////////////////////////////////////////////////
