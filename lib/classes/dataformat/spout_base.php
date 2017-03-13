@@ -43,6 +43,15 @@ abstract class spout_base extends \core\dataformat\base {
 
     /** @var $sheettitle */
     protected $sheettitle;
+    
+    /** Set proper encoding for mbstring. **/
+    /** Patch pour correction Bug rapports résultats en format xslx ou ods :
+        https://tracker.moodle.org/browse/MDL-56371 **/
+    public function __construct() {
+        if (extension_loaded('mbstring')) {
+            mb_internal_encoding('UTF-8');
+        }
+    }
 
     /**
      * Output file headers to initialise the download of the file.
