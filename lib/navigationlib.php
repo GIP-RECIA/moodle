@@ -2496,7 +2496,13 @@ class global_navigation extends navigation_node {
             if (!empty($course->category) && $this->show_categories($coursetype == self::COURSE_MY)) {
                 if (!$this->is_category_fully_loaded($course->category)) {
                     // We need to load the category structure for this course
-                    $this->load_all_categories($course->category, false);
+		    ////////////////////////////////////////////////
+		    // MODIFICATION RECIA | DEBUT |
+		    ////////////////////////////////////////////////
+                    //$this->load_all_categories($course->category, false);
+		    ////////////////////////////////////////////////
+		    // MODIFICATION RECIA | FIN
+		    ////////////////////////////////////////////////
                 }
                 if (array_key_exists($course->category, $this->addedcategories)) {
                     $parent = $this->addedcategories[$course->category];
@@ -2507,7 +2513,15 @@ class global_navigation extends navigation_node {
                 }
             }
         }
-
+	////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-04-04
+	// Nom long du cours dans la barre de navigation
+	////////////////////////////////////////////////
+        //$coursenode = $parent->add($coursename, $url, self::TYPE_COURSE, $shortname, $course->id);
+        $coursenode = $parent->add($fullname, $url, self::TYPE_COURSE, $shortname, $course->id);
+	////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
         $coursenode = $parent->add($coursename, $url, self::TYPE_COURSE, $shortname, $course->id);
         $coursenode->hidden = (!$course->visible);
         $coursenode->title(format_string($course->fullname, true, array('context' => $coursecontext, 'escape' => false)));
