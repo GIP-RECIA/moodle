@@ -1129,7 +1129,7 @@ class global_navigation extends navigation_node {
         ////////////////////////////////////////////////
         //$this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
         //$this->load_course_sections($SITE, $this->rootnodes['site']);
-	if(is_site_admin()){
+	if(is_siteadmin()){
         	$this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
         	$this->load_course_sections($SITE, $this->rootnodes['site']);
 	}
