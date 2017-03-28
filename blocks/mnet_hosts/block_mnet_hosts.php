@@ -144,10 +144,24 @@ class block_mnet_hosts extends block_list {
 
                 if ($host->id == $USER->mnethostid) {
                     $this->content->items[]="<a title=\"" .s($host->name).
-                        "\" href=\"{$host->wwwroot}\">".$icon. s($host->name) ."</a>";
+		        ////////////////////////////////////////////////
+		        // MODIFICATION RECIA | DEBUT | 
+		        ////////////////////////////////////////////////
+                        //"\" href=\"{$host->wwwroot}\">".$icon. s($host->name) ."</a>";
+		        "\" href=\"{$host->wwwroot}\" onclick=\"window.open(this.href); return false;\">".$icon. s($host->name) ."</a>";
+		        ////////////////////////////////////////////////
+		        // MODIFICATION RECIA | FIN | 
+		        ////////////////////////////////////////////////
                 } else {
                     $this->content->items[]="<a title=\"" .s($host->name).
-                        "\" href=\"{$CFG->wwwroot}/auth/mnet/jump.php?hostid={$host->id}\">" .$icon. s($host->name) ."</a>";
+		        ////////////////////////////////////////////////
+		        // MODIFICATION RECIA | DEBUT | 
+		        ////////////////////////////////////////////////
+                        //"\" href=\"{$CFG->wwwroot}/auth/mnet/jump.php?hostid={$host->id}\">" .$icon. s($host->name) ."</a>";
+			"\" href=\"{$CFG->wwwroot}/auth/mnet/jump.php?hostid={$host->id}\" onclick=\"window.open(this.href); return false;\">" .$icon. s($host->name) ."</a>";
+		        ////////////////////////////////////////////////
+		        // MODIFICATION RECIA | FIN | 
+		        ////////////////////////////////////////////////
                 }
             }
         }
