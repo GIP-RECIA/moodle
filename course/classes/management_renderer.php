@@ -254,6 +254,16 @@ class core_course_management_renderer extends plugin_renderer_base {
         $actions = \core_course\management\helper::get_category_listitem_actions($category);
         $hasactions = !empty($actions) || $category->can_create_course();
 
+	/////////////////////////////////////////////////////////////////////////////
+	// MODIFICATION RECIA | DEBUT | 2015-02-23
+	// Pour n'afficher que les catégories où l'utilisateur a une action possible
+	////////////////////////////////////////////////////////////////////////////
+	if (!$hasactions) {
+            $attributes['class'] .= ' hidden';
+        }
+	////////////////////////////////////////////////
+	// MODIFICATION RECIA | FIN
+	////////////////////////////////////////////////
         $html = html_writer::start_tag('li', $attributes);
         $html .= html_writer::start_div('clearfix');
         $html .= html_writer::start_div('float-left ba-checkbox');
