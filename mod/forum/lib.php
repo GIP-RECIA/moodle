@@ -876,8 +876,16 @@ function forum_cron() {
                 // Make sure strings are in message recipients language.
                 $eventdata->smallmessage = get_string_manager()->get_string('smallmessage', 'forum', $smallmessagestrings, $userto->lang);
 
-                $contexturl = new moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id), 'p' . $post->id);
-                $eventdata->contexturl = $contexturl->out();
+		///////////////////////////////////////
+		// Modif RECIA | DEBUT
+		// Gestion du multi-domaines
+		//////////////////////////////////////
+                //$contexturl = new moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id), 'p' . $post->id);
+                //$eventdata->contexturl = $contexturl->out();
+		$eventdata->contexturl = "{$url_user}/mod/forum/discuss.php?d={$discussion->id}#p{$post->id}";
+		///////////////////////////////////////
+		// Modif RECIA | FIN
+		///////////////////////////////////////
                 $eventdata->contexturlname = $discussion->name;
 
                 $mailresult = message_send($eventdata);
@@ -1032,8 +1040,16 @@ function forum_cron() {
 
                 $headerdata = new stdClass();
                 $headerdata->sitename = format_string($site->fullname, true);
-                $headerdata->userprefs = $CFG->wwwroot.'/user/forum.php?id='.$userid.'&amp;course='.$site->id;
-
+                ///////////////////////////////////////
+                // Modif RECIA | DEBUT
+                // Gestion du multi-domaines
+                //////////////////////////////////////
+                //$headerdata->userprefs = $CFG->wwwroot.'/user/forum.php?id='.$userid.'&amp;course='.$site->id;
+		$headerdata->userprefs = $url_user.'/user/forum.php?id='.$userid.'&amp;course='.$site->id;
+                ///////////////////////////////////////
+                // Modif RECIA | FIN
+                // Gestion du multi-domaines
+                //////////////////////////////////////
                 $posttext = get_string('digestmailheader', 'forum', $headerdata)."\n\n";
                 $headerdata->userprefs = '<a target="_blank" href="'.$headerdata->userprefs.'">'.get_string('digestmailprefs', 'forum').'</a>';
 
@@ -1075,17 +1091,46 @@ function forum_cron() {
                         $posttext  .= " -> ".format_string($discussion->name,true);
                     }
                     $posttext .= "\n";
-                    $posttext .= $CFG->wwwroot.'/mod/forum/discuss.php?d='.$discussion->id;
+                    ///////////////////////////////////////
+                    // Modif RECIA | DEBUT
+                    // Gestion du multi-domaines
+                    //////////////////////////////////////
+                    //$posttext .= $CFG->wwwroot.'/mod/forum/discuss.php?d='.$discussion->id;
+                    $posttext = $url_user.'/mod/forum/discuss.php?d='.$discussion->id;
+                    ///////////////////////////////////////
+                    // Modif RECIA | FIN
+                    // Gestion du multi-domaines
+                    //////////////////////////////////////
                     $posttext .= "\n";
 
                     $posthtml .= "<p><font face=\"sans-serif\">".
-                    "<a target=\"_blank\" href=\"$CFG->wwwroot/course/view.php?id=$course->id\">$shortname</a> -> ".
-                    "<a target=\"_blank\" href=\"$CFG->wwwroot/mod/forum/index.php?id=$course->id\">$strforums</a> -> ".
-                    "<a target=\"_blank\" href=\"$CFG->wwwroot/mod/forum/view.php?f=$forum->id\">".format_string($forum->name,true)."</a>";
+                    ///////////////////////////////////////
+                    // Modif RECIA | DEBUT
+                    // Gestion du multi-domaines
+                    //////////////////////////////////////
+                    //"<a target=\"_blank\" href=\"$CFG->wwwroot/course/view.php?id=$course->id\">$shortname</a> -> ".
+                    //"<a target=\"_blank\" href=\"$CFG->wwwroot/mod/forum/index.php?id=$course->id\">$strforums</a> -> ".
+                    //"<a target=\"_blank\" href=\"$CFG->wwwroot/mod/forum/view.php?f=$forum->id\">".format_string($forum->name,true)."</a>";
+                    "<a target=\"_blank\" href=\"$url_user/course/view.php?id=$course->id\">$shortname</a> -> ".
+                    "<a target=\"_blank\" href=\"$url_user/mod/forum/index.php?id=$course->id\">$strforums</a> -> ".
+                    "<a target=\"_blank\" href=\"$url_user/mod/forum/view.php?f=$forum->id\">".format_string($forum->name,true)."</a>";
+                    ///////////////////////////////////////
+                    // Modif RECIA | FIN
+                    // Gestion du multi-domaines
+                    //////////////////////////////////////
                     if ($discussion->name == $forum->name) {
                         $posthtml .= "</font></p>";
                     } else {
-                        $posthtml .= " -> <a target=\"_blank\" href=\"$CFG->wwwroot/mod/forum/discuss.php?d=$discussion->id\">".format_string($discussion->name,true)."</a></font></p>";
+                        ///////////////////////////////////////
+                        // Modif RECIA | DEBUT
+                        // Gestion du multi-domaines
+                        //////////////////////////////////////
+                        //$posthtml .= " -> <a target=\"_blank\" href=\"$CFG->wwwroot/mod/forum/discuss.php?d=$discussion->id\">".format_string($discussion->name,true)."</a></font></p>";
+                        $posthtml .= " -> <a target=\"_blank\" href=\"$url_user/mod/forum/discuss.php?d=$discussion->id\">".format_string($discussion->name,true)."</a></font></p>";
+                        ///////////////////////////////////////
+                        // Modif RECIA | FIN
+                        // Gestion du multi-domaines
+                        //////////////////////////////////////
                     }
                     $posthtml .= '<p>';
 
@@ -1177,11 +1222,29 @@ function forum_cron() {
                     }
                     $footerlinks = array();
                     if ($canunsubscribe) {
-                        $footerlinks[] = "<a href=\"$CFG->wwwroot/mod/forum/subscribe.php?id=$forum->id\">" . get_string("unsubscribe", "forum") . "</a>";
+                        ///////////////////////////////////////
+                        // Modif RECIA | DEBUT
+                        // Gestion du multi-domaines
+                        //////////////////////////////////////
+                        //$footerlinks[] = "<a href=\"$CFG->wwwroot/mod/forum/subscribe.php?id=$forum->id\">" . get_string("unsubscribe", "forum") . "</a>";
+                        $footerlinks[] = "<a href=\"$url_user/mod/forum/subscribe.php?id=$forum->id\">" . get_string("unsubscribe", "forum") . "</a>";
+                        ///////////////////////////////////////
+                        // Modif RECIA | FIN
+                        // Gestion du multi-domaines
+                        //////////////////////////////////////
                     } else {
                         $footerlinks[] = get_string("everyoneissubscribed", "forum");
                     }
-                    $footerlinks[] = "<a href='{$CFG->wwwroot}/mod/forum/index.php?id={$forum->course}'>" . get_string("digestmailpost", "forum") . '</a>';
+                    ///////////////////////////////////////
+                    // Modif RECIA | DEBUT
+                    // Gestion du multi-domaines
+                    //////////////////////////////////////
+                    //$footerlinks[] = "<a href='{$CFG->wwwroot}/mod/forum/index.php?id={$forum->course}'>" . get_string("digestmailpost", "forum") . '</a>';
+                    $footerlinks[] = "<a href='{$url_user}/mod/forum/index.php?id={$forum->course}'>" . get_string("digestmailpost", "forum") . '</a>';
+                    ///////////////////////////////////////
+                    // Modif RECIA | FIN
+                    // Gestion du multi-domaines
+                    //////////////////////////////////////
                     $posthtml .= "\n<div class='mdl-right'><font size=\"1\">" . implode('&nbsp;', $footerlinks) . '</font></div>';
                     $posthtml .= '<hr size="1" noshade="noshade" /></p>';
                 }
