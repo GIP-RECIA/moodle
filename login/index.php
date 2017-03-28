@@ -33,6 +33,10 @@ if (!isset($CFG->additionalhtmlhead)) {
 }
 $CFG->additionalhtmlhead .= '<meta name="robots" content="noindex" />';
 
+////////////////////////////////////////////////////////////////////////////////
+// MODIFICATION RECIA | DEBUT | 201605..
+// Ajout pour global logout pour les handlers de type files, db, memcached - MCI
+////////////////////////////////////////////////////////////////////////////////
 function unserializesession( $serialized_string ) {
 	$variables = array( );
 	$a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
@@ -165,6 +169,9 @@ if (isset($_POST) && array_key_exists('logoutRequest', $_POST)) {
 		}
 	}
 }
+////////////////////////////////////////////////
+// MODIFICATION RECIA | FIN
+////////////////////////////////////////////////
 
 redirect_if_major_upgrade_required();
 
