@@ -169,10 +169,10 @@ if ($editform->is_cancelled()) {
         //}
 	
         // On ajoute les rôles "propriétaire de cours" et "Enseignant" à celui qui crée le cours       
-	if (!empty($CFG->rolecourseownerid) {
+	if (!empty($CFG->rolecourseownerid)) {
         enrol_try_simplesco_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
 	}
-	if (!empty($CFG->creatornewroleid) {
+	if (!empty($CFG->creatornewroleid)) {
         enrol_try_simplesco_enrol($course->id, $USER->id, $CFG->creatornewroleid);
 	}
         ////////////////////////////////////////////////
