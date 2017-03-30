@@ -168,6 +168,7 @@ if ($editform->is_cancelled()) {
 
         // Get the context of the newly created course.
         $context = context_course::instance($course->id, MUST_EXIST);
+
         ////////////////////////////////////////////////
         // MODIFICATION RECIA | DEBUT | 2013-04-12
         ////////////////////////////////////////////////
@@ -185,10 +186,16 @@ if ($editform->is_cancelled()) {
             // Note: This does not respect capabilities, the creator will be assigned the default role.
             // This is an expected behaviour. See MDL-66683 for further details.
             //enrol_try_internal_enrol($course->id, $USER->id, $CFG->creatornewroleid);
-            enrol_try_simpesco_enrol($course->id, $USER->id, $CFG->creatornewroleid);
+            //enrol_try_simpesco_enrol($course->id, $USER->id, $CFG->creatornewroleid);
         //}
-	
-	    enrol_try_simplesco_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
+
+        // On ajoute les rôles "propriétaire de cours" et "Enseignant" à celui qui crée le cours       
+        if (!empty($CFG->rolecourseownerid)) {
+            enrol_try_simplesco_enrol($course->id, $USER->id, $CFG->rolecourseownerid);
+        }
+        if (!empty($CFG->creatornewroleid)) {
+            enrol_try_simplesco_enrol($course->id, $USER->id, $CFG->creatornewroleid);
+        }
         ////////////////////////////////////////////////
         // MODIFICATION RECIA | FIN
         ////////////////////////////////////////////////
