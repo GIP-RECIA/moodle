@@ -31,16 +31,26 @@ defined('MOODLE_INTERNAL') || die();
  */
 class core_role_potential_assignees_course_and_above extends core_role_assign_user_selector_base {
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
-        list($wherecondition, $params) = $this->search_sql($search, '');
+        list($wherecondition, $params) = $this->search_sql($search, 'u');
 
-        $fields      = 'SELECT ' . $this->required_fields_sql('');
+        $fields      = 'SELECT ' . $this->required_fields_sql('u');
         $countfields = 'SELECT COUNT(1)';
 
-        $sql = " FROM {user}
-                WHERE $wherecondition
-                      AND id NOT IN (
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         */
+        $from = array("{user} u");
+        $from[] = "{user_info_data} uid ON u.id = uid.userid";
+        $from[] = "{user_info_field} uif ON uif.id = uid.fieldid";
+
+        if(!empty($USER->profile["etablissement"])){
+            $wherecondition = sprintf("uif.shortname = 'etablissement' AND uid.data = '%s' AND %s", $USER->profile["etablissement"], $wherecondition);
+        }
+
+        $sql = " FROM " . implode(" LEFT JOIN ", $from) . " WHERE $wherecondition
+                      AND u.id NOT IN (
                          SELECT r.userid
                            FROM {role_assignments} r
                           WHERE r.contextid = :contextid
