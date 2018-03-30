@@ -565,7 +565,7 @@ function profile_load_data($user) {
  * @param int $userid id of user whose profile is being edited.
  */
 function profile_definition($mform, $userid = 0) {
-    global $CFG, $DB;
+    global $CFG, $DB, $USER;
 
     // If user is "admin" fields are displayed regardless.
     $update = has_capability('moodle/user:update', context_system::instance());
@@ -579,12 +579,21 @@ function profile_definition($mform, $userid = 0) {
                 $display = true;
             }
         }
-
         // Display the header and the fields.
         if ($display or $update) {
             $mform->addElement('header', 'category_'.$categoryid, format_string($formfield->get_category_name()));
             foreach ($fields as $formfield) {
                 $formfield->edit_field($mform);
+
+                /**
+                 * Modification Pierre LEJEUNE, GIP Récia : gestion du remplissage et de l'affichage du champs établissement
+                 */
+                if(!empty($USER->profile["etablissement"]) && $formfield->field->shortname === "etablissement"){
+                    $formfield->field->defaultdata = $USER->profile["etablissement"];
+                    $mform->hardFreeze($formfield->inputname);
+                    $mform->setConstant($formfield->inputname, $formfield->field->defaultdata);
+                }
+
             }
         }
     }
