@@ -501,11 +501,11 @@ function get_users($get=true, $search='', $confirmed=false, ?array $exceptions=n
 function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperpage=0,
                            $search='', $firstinitial='', $lastinitial='', $extraselect='',
                            ?array $extraparams=null, $extracontext = null) {
-    global $DB, $CFG;
+    global $DB, $CFG, $USER;
 
     $fullname  = $DB->sql_fullname();
 
-    $select = "deleted <> 1 AND u.id <> :guestid";
+    $select = "u.deleted <> 1 AND u.id <> :guestid";
     $params = array('guestid' => $CFG->siteguest);
 
     if (!empty($search)) {
@@ -554,13 +554,31 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
         $sort = get_safe_orderby($orderbymap, $sort, $dir);
     }
 
+    /**
+     * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+     */
+    $additionalsql = '';
+    $additionalparams = [];
+    
+    if(!empty($USER->profile["etablissement"])) {
+        // Dans Moodle 4.1, nous devons ajouter des jointures supplémentaires
+        $additionalsql = "
+            JOIN {user_info_data} uid ON uid.userid = u.id
+            JOIN {user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname AND uid.data = :fieldvalue
+        ";
+        $additionalparams = [
+            'fieldname' => 'etablissement',
+            'fieldvalue' => $USER->profile["etablissement"]
+        ];
+    }
+
     // warning: will return UNCONFIRMED USERS
     return $DB->get_records_sql("SELECT u.id $selects
-                                   FROM {user} u
-                                        $joins
-                                  WHERE $select
-                                  $sort", array_merge($params, $joinparams), $page, $recordsperpage);
-
+                                    FROM {user} u
+                                         $joins
+                                         $additionalsql
+                                   WHERE $select
+                                   $sort", array_merge($params, $joinparams, $additionalparams), $page, $recordsperpage);
 }
 
 
