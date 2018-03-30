@@ -475,11 +475,11 @@ function get_users($get=true, $search='', $confirmed=false, array $exceptions=nu
 function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperpage=0,
                            $search='', $firstinitial='', $lastinitial='', $extraselect='',
                            array $extraparams=null, $extracontext = null) {
-    global $DB, $CFG;
+    global $DB, $CFG, $USER;
 
     $fullname  = $DB->sql_fullname();
 
-    $select = "deleted <> 1 AND id <> :guestid";
+    $select = "u.deleted <> 1 AND u.id <> :guestid";
     $params = array('guestid' => $CFG->siteguest);
 
     if (!empty($search)) {
@@ -514,7 +514,7 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
     if ($extracontext) {
         $extrafields = get_extra_user_fields_sql($extracontext, '', '', $includedfields);
     }
-    $namefields = get_all_user_name_fields(true);
+    $namefields = get_all_user_name_fields(true, null, 'u.');
     $extrafields = "$extrafields, $namefields";
 
     if ($sort) {
@@ -527,11 +527,20 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
         $sort = get_safe_orderby($neworderbymap, $sort, $dir);
     }
 
-    // warning: will return UNCONFIRMED USERS
-    return $DB->get_records_sql("SELECT id, username, email, city, country, lastaccess, confirmed, mnethostid, suspended $extrafields
-                                   FROM {user}
+    /**
+     * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+     */
+    if(!empty($USER->profile["etablissement"])){
+        $select = sprintf("uif.shortname = 'etablissement' AND uid.data = '%s' AND %s", $USER->profile["etablissement"], $select);
+    }
+    $sql = "SELECT u.id, u.username, u.email, u.city, u.country, u.lastaccess, u.confirmed, u.mnethostid, u.suspended $extrafields
+                                   FROM {user} u
+                                   LEFT JOIN {user_info_data} uid ON u.id = uid.userid
+                                   LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid
                                   WHERE $select
-                                  $sort", $params, $page, $recordsperpage);
+                                  $sort";
+    // warning: will return UNCONFIRMED USERS
+    return $DB->get_records_sql($sql, $params, $page, $recordsperpage);
 
 }
 
