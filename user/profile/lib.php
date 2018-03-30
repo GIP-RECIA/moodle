@@ -679,6 +679,8 @@ function profile_load_data(stdClass $user): void {
  * @param int $userid id of user whose profile is being edited or 0 for the new user
  */
 function profile_definition(MoodleQuickForm $mform, int $userid = 0): void {
+    global $USER;
+    
     $categories = profile_get_user_fields_with_data_by_category($userid);
     foreach ($categories as $categoryid => $fields) {
         // Check first if *any* fields will be displayed.
@@ -698,6 +700,15 @@ function profile_definition(MoodleQuickForm $mform, int $userid = 0): void {
         $mform->addElement('header', 'category_'.$categoryid, format_string($fields[0]->get_category_name()));
         foreach ($fieldstodisplay as $formfield) {
             $formfield->edit_field($mform);
+
+            /**
+             * Modification Pierre LEJEUNE, GIP Récia : gestion du remplissage et de l'affichage du champs établissement
+             */
+            if(!empty($USER->profile["etablissement"]) && $formfield->field->shortname === "etablissement"){
+                $formfield->field->defaultdata = $USER->profile["etablissement"];
+                $mform->hardFreeze($formfield->inputname);
+                $mform->setConstant($formfield->inputname, $formfield->field->defaultdata);
+            }
         }
     }
 }
