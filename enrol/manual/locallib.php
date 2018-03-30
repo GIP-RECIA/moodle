@@ -45,7 +45,7 @@ class enrol_manual_potential_participant extends user_selector_base {
      * @return array
      */
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
         // By default wherecondition retrieves all users except the deleted, not confirmed and guest.
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         $params['enrolid'] = $this->enrolid;
@@ -53,10 +53,18 @@ class enrol_manual_potential_participant extends user_selector_base {
         $fields      = 'SELECT ' . $this->required_fields_sql('u');
         $countfields = 'SELECT COUNT(1)';
 
-        $sql = " FROM {user} u
-            LEFT JOIN {user_enrolments} ue ON (ue.userid = u.id AND ue.enrolid = :enrolid)
-                WHERE $wherecondition
-                      AND ue.id IS NULL";
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         */
+        $from = array("{user} u");
+        $from[] = "{user_enrolments} ue ON (ue.userid = u.id AND ue.enrolid = :enrolid)";
+        $from[] = "{user_info_data} uid ON u.id = uid.userid";
+        $from[] = "{user_info_field} uif ON uif.id = uid.fieldid";
+
+        if(!empty($USER->profile["etablissement"])){
+            $wherecondition = sprintf("uif.shortname = 'etablissement' AND uid.data = '%s' AND %s", $USER->profile["etablissement"], $wherecondition);
+        }
+        $sql = " FROM " . implode(" LEFT JOIN ", $from) . " WHERE $wherecondition AND ue.id IS NULL";
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
