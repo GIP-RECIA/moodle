@@ -99,24 +99,20 @@ class core_role_check_users_selector extends user_selector_base {
                 // Bad luck, current user may not view only enrolled users.
                 return array();
             }
+            $wherecondition2 = $wherecondition;
             $from2 = $from1;
             unset($from1);
         }
 
         $sql1 = null;
         $sql2 = null;
+
         if(!is_null($from1)) {
             $sql1 = " FROM " . implode(" LEFT JOIN ", $from1) . " WHERE $wherecondition1";
         }
         if(!is_null($from2)){
             $sql2 = " FROM " . implode(" LEFT JOIN ", $from2) . " WHERE $wherecondition2";
         }
-
-        var_dump($params);
-        echo "<br/>------------------</br>";
-        var_dump($sql1);
-        echo "<br/>------------------</br>";
-        var_dump($sql2);
 
         $params['contextid'] = $this->accesscontext->id;
 
