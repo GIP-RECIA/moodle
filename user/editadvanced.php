@@ -139,6 +139,10 @@ if ($user->id !== -1) {
     );
 }
 
+if($user->id != -1 && !empty($USER->profile["etablissement"]) && $USER->profile["etablissement"] != $user->profile_field_etablissement){
+    print_error('otheretablissementnoeditprofileother');
+}
+
 // Prepare filemanager draft area.
 $draftitemid = 0;
 $filemanagercontext = $editoroptions['context'];
