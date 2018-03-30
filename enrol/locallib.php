@@ -484,16 +484,28 @@ class course_enrolment_manager {
      */
     public function get_potential_users($enrolid, $search = '', $searchanywhere = false, $page = 0, $perpage = 25,
             $addedenrollment = 0, $returnexactcount = false) {
-        global $DB;
+        global $DB, $USER;
 
         list($ufields, $params, $wherecondition) = $this->get_basic_search_conditions($search, $searchanywhere);
 
         $fields      = 'SELECT '.$ufields;
         $countfields = 'SELECT COUNT(1)';
-        $sql = " FROM {user} u
-            LEFT JOIN {user_enrolments} ue ON (ue.userid = u.id AND ue.enrolid = :enrolid)
-                WHERE $wherecondition
-                      AND ue.id IS NULL";
+
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans l'affichage
+         */
+
+        $from = array("{user} u");
+        $from[] = "{user_enrolments} ue ON (ue.userid = u.id AND ue.enrolid = :enrolid)";
+
+        if(!empty($USER->profile["etablissement"])){
+            $wherecondition = "uif.shortname = 'etablissement' AND uid.data = :etablissement AND " . $wherecondition;
+            $params["etablissement"] = $USER->profile["etablissement"];
+            $from[] = "{user_info_data} uid ON u.id = uid.userid";
+            $from[] = "{user_info_field} uif ON uif.id = uid.fieldid";
+        }
+
+        $sql = " FROM " . implode(" LEFT JOIN ", $from) . " WHERE $wherecondition AND ue.id IS NULL";
         $params['enrolid'] = $enrolid;
 
         return $this->execute_search_queries($search, $fields, $countfields, $sql, $params, $page, $perpage, $addedenrollment,
