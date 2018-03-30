@@ -46,8 +46,7 @@ class cohort_candidate_selector extends user_selector_base {
      * @return array
      */
     public function find_users($search) {
-        global $DB;
-
+        global $DB, $USER;
         // By default wherecondition retrieves all users except the deleted, not confirmed and guest.
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         $params = array_merge($params, $this->userfieldsparams);
@@ -56,11 +55,35 @@ class cohort_candidate_selector extends user_selector_base {
 
         $fields      = 'SELECT u.id, ' . $this->userfieldsselects;
         $countfields = 'SELECT COUNT(1)';
-
-        $sql = " FROM {user} u
-            LEFT JOIN {cohort_members} cm ON (cm.userid = u.id AND cm.cohortid = :cohortid)
-                $this->userfieldsjoin
-                WHERE cm.id IS NULL AND $wherecondition";
+        
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         * Adaptation pour Moodle 4.1
+         */
+        // Initialisation des tables et jointures
+        $tables = ['{user} u'];
+        $tables[] = '{cohort_members} cm ON (cm.userid = u.id AND cm.cohortid = :cohortid)';
+        $join = $this->userfieldsjoin;
+        
+        // Ajout du filtre par établissement si l'utilisateur courant a un établissement défini
+        if (!empty($USER->profile["etablissement"])) {
+            // Ajout des jointures pour les tables de profil utilisateur
+            $tables[] = '{user_info_data} uid ON u.id = uid.userid';
+            $tables[] = '{user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname';
+            
+            // Ajout de la condition sur l'établissement
+            $wherecondition .= " AND uid.data = :fieldvalue";
+            
+            // Ajout des paramètres pour l'établissement
+            $params['fieldname'] = 'etablissement';
+            $params['fieldvalue'] = $USER->profile["etablissement"];
+            
+            // Remplacer la jointure standard par nos jointures personnalisées
+            $join = '';
+        }
+        
+        // Construction de la clause FROM avec les jointures
+        $sql = " FROM " . implode(" LEFT JOIN ", $tables) . $join . " WHERE $wherecondition AND cm.id IS NULL";
 
         list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext, $this->userfieldsmappings);
         $order = ' ORDER BY ' . $sort;
