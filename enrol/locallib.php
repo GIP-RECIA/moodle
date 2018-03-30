@@ -555,17 +555,33 @@ class course_enrolment_manager {
      * @throws dml_exception
      */
     public function search_other_users($search = '', $searchanywhere = false, $page = 0, $perpage = 25, $returnexactcount = false) {
-        global $DB, $CFG;
+        global $DB, $CFG, $USER;
 
         [$ufields, $joins, $params, $wherecondition] = $this->get_basic_search_conditions($search, $searchanywhere);
 
         $fields      = 'SELECT ' . $ufields;
         $countfields = 'SELECT COUNT(u.id)';
-        $sql   = " FROM {user} u
-                        $joins
-              LEFT JOIN {role_assignments} ra ON (ra.userid = u.id AND ra.contextid = :contextid)
-                  WHERE $wherecondition
-                    AND ra.id IS NULL";
+        
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         * Adaptation pour Moodle 4.1
+         */
+        // Préparation de la base de la requête
+        $sql = " FROM {user} u
+                $joins
+                LEFT JOIN {role_assignments} ra ON (ra.userid = u.id AND ra.contextid = :contextid)";
+                
+        // Ajout du filtre par établissement si l'utilisateur courant a un établissement défini
+        if (!empty($USER->profile["etablissement"])) {
+            $sql .= " LEFT JOIN {user_info_data} uid ON u.id = uid.userid
+                    LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname";
+            $wherecondition = "uid.data = :fieldvalue AND " . $wherecondition;
+            $params['fieldname'] = 'etablissement';
+            $params['fieldvalue'] = $USER->profile["etablissement"];
+        }
+        
+        // Finalisation de la requête
+        $sql .= " WHERE $wherecondition AND ra.id IS NULL";
         $params['contextid'] = $this->context->id;
 
         return $this->execute_search_queries($search, $fields, $countfields, $sql, $params, $page, $perpage, 0, $returnexactcount);
