@@ -31,17 +31,42 @@ defined('MOODLE_INTERNAL') || die();
  */
 class core_role_potential_assignees_course_and_above extends core_role_assign_user_selector_base {
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
+        // Obtention des conditions de recherche de base
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         $params = array_merge($params, $this->userfieldsparams);
 
+        // Définition des champs à sélectionner
         $fields      = 'SELECT u.id, ' . $this->userfieldsselects;
         $countfields = 'SELECT COUNT(1)';
+        
+        // Construction des tables et jointures
+        $from = ['{user} u'];
+        $join = $this->userfieldsjoin;
+        
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         * Adaptation pour Moodle 4.1
+         */
+        if (!empty($USER->profile["etablissement"])) {
+            // Ajout des jointures pour les tables de profil utilisateur
+            $from[] = '{user_info_data} uid ON u.id = uid.userid';
+            $from[] = '{user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname';
+            
+            // Ajout de la condition sur l'établissement
+            $wherecondition .= " AND uid.data = :fieldvalue";
+            
+            // Ajout des paramètres pour l'établissement
+            $params['fieldname'] = 'etablissement';
+            $params['fieldvalue'] = $USER->profile["etablissement"];
+            
+            // Remplacer la jointure standard par nos jointures personnalisées
+            $join = '';
+        }
 
-        $sql = " FROM {user} u
-                      $this->userfieldsjoin
-                WHERE $wherecondition
+        // Construction de la clause FROM
+        $sql = " FROM " . implode(" LEFT JOIN ", $from) . $join . " WHERE $wherecondition
                       AND u.id NOT IN (
                          SELECT r.userid
                            FROM {role_assignments} r
