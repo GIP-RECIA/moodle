@@ -58,7 +58,7 @@ class core_role_check_users_selector extends user_selector_base {
     }
 
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
         list($wherecondition, $params) = $this->search_sql($search, 'u');
 
@@ -66,22 +66,31 @@ class core_role_check_users_selector extends user_selector_base {
         $countfields = 'SELECT COUNT(1)';
 
         $coursecontext = $this->accesscontext->get_course_context(false);
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         */
+        $from1 = array("user" => "{user} u");
+        $from1["user_info_data"] = "{user_info_data} uid ON u.id = uid.userid";
+        $from1["user_info_field"] = "{user_info_field} uif ON uif.id = uid.fieldid";
+
+        if(!empty($USER->profile["etablissement"])){
+            $wherecondition = sprintf("uif.shortname = 'etablissement' AND uid.data = '%s' AND %s", $USER->profile["etablissement"], $wherecondition);
+        }
 
         if ($coursecontext and $coursecontext != SITEID) {
-            $sql1 = " FROM {user} u
-                      JOIN {user_enrolments} ue ON (ue.userid = u.id)
-                      JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid1)
-                     WHERE $wherecondition";
+            $from1["user_enrolments"] = "{user_enrolments} ue ON (ue.userid = u.id)";
+            $from1["enrol"] = "{enrol} e ON (e.id = ue.enrolid)";
             $params['courseid1'] = $coursecontext->instanceid;
+            $wherecondition1 = $wherecondition . " AND e.courseid = :courseid1 ";
+            if (!$this->onlyenrolled) {
+                $from2 = $from1;
+                $wherecondition2 = $wherecondition;
 
-            if ($this->onlyenrolled) {
-                $sql2 = null;
-            } else {
-                $sql2 = " FROM {user} u
-                     LEFT JOIN ({user_enrolments} ue
-                                JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid2)) ON (ue.userid = u.id)
-                         WHERE $wherecondition
-                               AND ue.id IS NULL";
+                unset($from2["enrol"]);
+                unset($from2["user_enrolments"]);
+
+                $from2["user_enrolments"] = "({user_enrolments} ue JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid2)) ON (ue.userid = u.id)";
+                $wherecondition2 .= " AND ue.id IS NULL";
                 $params['courseid2'] = $coursecontext->instanceid;
             }
 
@@ -90,10 +99,24 @@ class core_role_check_users_selector extends user_selector_base {
                 // Bad luck, current user may not view only enrolled users.
                 return array();
             }
-            $sql1 = null;
-            $sql2 = " FROM {user} u
-                     WHERE $wherecondition";
+            $from2 = $from1;
+            unset($from1);
         }
+
+        $sql1 = null;
+        $sql2 = null;
+        if(!is_null($from1)) {
+            $sql1 = " FROM " . implode(" LEFT JOIN ", $from1) . " WHERE $wherecondition1";
+        }
+        if(!is_null($from2)){
+            $sql2 = " FROM " . implode(" LEFT JOIN ", $from2) . " WHERE $wherecondition2";
+        }
+
+        var_dump($params);
+        echo "<br/>------------------</br>";
+        var_dump($sql1);
+        echo "<br/>------------------</br>";
+        var_dump($sql2);
 
         $params['contextid'] = $this->accesscontext->id;
 
