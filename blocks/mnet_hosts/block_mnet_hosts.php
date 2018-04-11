@@ -144,9 +144,11 @@ class block_mnet_hosts extends block_list {
                 } else {
                     $url = new \moodle_url('/auth/mnet/jump.php', array('hostid' => $host->id));
                 }
+
+                // Modification GIP Récia, Pierre LEJEUNE : Ajout d'un target _blank pour ouvrir les liens Moodle.net dans une nouvelle page
                 $this->content->items[] = html_writer::tag('a',
                     $OUTPUT->pix_icon("i/{$host->application}_host", get_string('server', 'block_mnet_hosts')) . s($host->name),
-                    array('href' => $url->out(), 'title' => s($host->name))
+                    array('href' => $url->out(), 'title' => s($host->name), 'target' => '_blank')
                 );
             }
         }
