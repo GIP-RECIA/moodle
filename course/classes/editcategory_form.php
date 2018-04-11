@@ -63,6 +63,14 @@ class core_course_editcategory_form extends moodleform {
             $strsubmit = get_string('createcategory');
         }
 
+        // Modification GIP Récia, Pierre LEJEUNE : Désactivation du formulaire si la catégorie est de niveau 1 et que
+        // L'utilisateur n'est pas administrateur
+
+        $category = $DB->get_record("course_categories",array("id" => $categoryid));
+        if($category !== false && $category->parent == 0 && !is_siteadmin()){
+            throw new moodle_exception('levelonecategoryupdatelocked');
+        }
+
         $mform->addElement('autocomplete', 'parent', get_string('parentcategory'), $options);
         $mform->addRule('parent', null, 'required', null, 'client');
 
