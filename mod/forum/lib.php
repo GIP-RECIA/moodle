@@ -871,7 +871,14 @@ function forum_cron() {
                 // Make sure strings are in message recipients language.
                 $eventdata->smallmessage = get_string_manager()->get_string('smallmessage', 'forum', $smallmessagestrings, $userto->lang);
 
-                $contexturl = new moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id), 'p' . $post->id);
+
+                // Modification GIP Récia, Pierre LEJEUNE : Liens dans le mail basé sur le domaine de l'utilisateur
+                $url_user = "";
+                if (isset($userto->domaine)) {
+                    $url_parts = parse_url($CFG->wwwroot);
+                    $url_user = $url_parts['scheme']."://".$userto->domaine.$url_parts['path'];
+                }
+                $contexturl = new moodle_url($url_user.'/mod/forum/discuss.php', array('d' => $discussion->id), 'p' . $post->id);
                 $eventdata->contexturl = $contexturl->out();
                 $eventdata->contexturlname = $discussion->name;
 
