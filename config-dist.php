@@ -93,7 +93,20 @@ $CFG->dboptions = array(
 // If you need both intranet and Internet access please read
 // http://docs.moodle.org/en/masquerading
 
-$CFG->wwwroot   = 'http://example.com/moodle';
+if(isset($_SERVER['SERVER_NAME'])){
+    $domainName = $_SERVER['SERVER_NAME'];
+}else{
+    // Domaine par défaut pour l'utilisation du moodle
+    $domainName = "test-lycee.reciaent.fr";
+}
+
+// Chemin d'acces a l'application
+// Exemple :
+//   Avec URL = https://mon.serveur.com/moodle2
+//   Chemin d'acces => '/moodle2'
+$CFG->webpath = '/moodle';
+
+$CFG->wwwroot   = "https://" . $domainName . $CFG->webpath;
 
 
 //=========================================================================
@@ -327,7 +340,7 @@ $CFG->rolecourseownerid = 11;
 //
 // Enable when using external SSL appliance for performance reasons.
 // Please note that site may be accessible via http: or https:, but not both!
-//      $CFG->sslproxy = true;
+      $CFG->sslproxy = true;
 //
 // This setting will cause the userdate() function not to fix %d in
 // date strings, and just let them show with a zero prefix.
