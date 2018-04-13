@@ -754,10 +754,16 @@ function forum_cron() {
 
                 $cleanforumname = str_replace('"', "'", strip_tags(format_string($forum->name)));
 
+                // Modification GIP Récia, Pierre LEJEUNE : Liens dans le mail basé sur le domaine de l'utilisateur
+                $list_help_base = $CFG->wwwroot;
+                if (isset($userto->domaine)) {
+                    $url_parts = parse_url($CFG->wwwroot);
+                    $list_help_base = $url_parts['scheme']."://".$userto->domaine.$url_parts['path'];
+                }
                 $userfrom->customheaders = array (
                     // Headers to make emails easier to track.
                     'List-Id: "'        . $cleanforumname . '" ' . generate_email_messageid('moodleforum' . $forum->id),
-                    'List-Help: '       . $CFG->wwwroot . '/mod/forum/view.php?f=' . $forum->id,
+                    'List-Help: '       . $list_help_base . '/mod/forum/view.php?f=' . $forum->id,
                     'Message-ID: '      . forum_get_email_message_id($post->id, $userto->id),
                     'X-Course-Id: '     . $course->id,
                     'X-Course-Name: '   . format_string($course->fullname, true),
