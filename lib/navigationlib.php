@@ -2021,15 +2021,31 @@ class global_navigation extends navigation_node {
         }
         $categoriesrs->close();
 
+
         // Now we have an array of categories we need to add them to the navigation.
         while (!empty($categories)) {
             $category = reset($categories);
             if (array_key_exists($category->id, $this->addedcategories)) {
                 // Do nothing
             } else if ($category->parent == '0') {
-                $this->add_category($category, $this->rootnodes['courses']);
-            } else if (array_key_exists($category->parent, $this->addedcategories)) {
                 $this->add_category($category, $this->addedcategories[$category->parent]);
+            } else if (array_key_exists($category->parent, $this->addedcategories)) {
+                // Modification GIP Récia, Pierre LEJEUNE : Limitation des catégories affichées
+                $limit = 20;
+                if (!empty($CFG->navcourselimit)) {
+                    $limit = $CFG->navcourselimit;
+                }
+                $mycourses = enrol_get_my_courses(NULL, 'visible DESC,sortorder ASC', $limit);
+                if (!empty($mycourses)) {
+                    $this->add_category($category, $this->addedcategories[$category->parent]);
+                    foreach ($mycourses as $cours) {
+                        if ($cours->category == $category->id) {
+                            $this->add_category($category, $this->addedcategories[$category->parent]);
+                        }
+                    }
+                } else {
+                    $this->add_category($category, $this->addedcategories[$category->parent]);
+                }
             } else {
                 // This category isn't in the navigation and niether is it's parent (yet).
                 // We need to go through the category path and add all of its components in order.
