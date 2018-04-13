@@ -1427,7 +1427,15 @@ class global_navigation extends navigation_node {
                 $this->rootnodes['home']->action->param('redirect', '0');
             }
         }
-        $this->rootnodes['site'] = $this->add_course($SITE);
+        // Modification GIP Récia, Pierre LEJEUNE : affichage de l'item "Pages du Site" uniquement aux administrateurs
+        if(is_siteadmin()){
+            $this->rootnodes['site'] = $this->add_course($SITE);
+            // We always load the frontpage course to ensure it is available without
+            // JavaScript enabled.
+            $this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
+            $this->load_course_sections($SITE, $this->rootnodes['site']);
+        }
+
         $this->rootnodes['myprofile'] = $this->add(get_string('profile'), null, self::TYPE_USER, null, 'myprofile');
         $this->rootnodes['currentcourse'] = $this->add(get_string('currentcourse'), null, self::TYPE_ROOTNODE, null, 'currentcourse');
         $this->rootnodes['mycourses'] = $this->add(
@@ -1449,11 +1457,6 @@ class global_navigation extends navigation_node {
             $this->rootnodes['courses']->hide();
         }
         $this->rootnodes['users'] = $this->add(get_string('users'), null, self::TYPE_ROOTNODE, null, 'users');
-
-        // We always load the frontpage course to ensure it is available without
-        // JavaScript enabled.
-        $this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
-        $this->load_course_sections($SITE, $this->rootnodes['site']);
 
         $course = $this->page->course;
         $this->load_courses_enrolled();
