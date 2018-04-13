@@ -1756,9 +1756,10 @@ class global_navigation extends navigation_node {
 
         // If we are going to show all courses AND we are showing categories then
         // to save us repeated DB calls load all of the categories now
-        if ($this->show_categories()) {
-            $this->load_all_categories($toload);
-        }
+        // Modification GIP Récia, Pierre LEJEUNE : Désactivation du chargement de la liste de toutes les catégories
+//        if ($this->show_categories()) {
+//            $this->load_all_categories($toload);
+//        }
 
         // Will be the return of our efforts
         $coursenodes = array();
