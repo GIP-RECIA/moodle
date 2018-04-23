@@ -965,6 +965,10 @@ if ($USER && isset($USER->username)) {
     }
 }
 
+if(!empty($USER->profile['etablissement'])){
+    $SESSION->theme = $USER->profile['etablissement'];
+}
+
 // Ensure the urlrewriteclass is setup correctly (to avoid crippling site).
 if (isset($CFG->urlrewriteclass)) {
     if (!class_exists($CFG->urlrewriteclass)) {
