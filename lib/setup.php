@@ -933,6 +933,10 @@ if (!empty($CFG->debugvalidators) and !empty($CFG->guestloginbutton)) {
 set_access_log_user();
 
 
+if(!empty($USER->profile['etablissement'])){
+    $SESSION->theme = $USER->profile['etablissement'];
+}
+
 // Ensure the urlrewriteclass is setup correctly (to avoid crippling site).
 if (isset($CFG->urlrewriteclass)) {
     if (!class_exists($CFG->urlrewriteclass)) {
