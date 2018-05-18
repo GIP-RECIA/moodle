@@ -990,6 +990,15 @@ $functions = array(
         'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
         'ajax' => true,
     ),
+    'core_message_mark_notification_read' => array(
+        'classname' => 'core_message_external',
+        'methodname' => 'mark_notification_read',
+        'classpath' => 'message/externallib.php',
+        'description' => 'Mark a single notification as read, trigger notification_viewed event.',
+        'type' => 'write',
+        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
+        'ajax' => true,
+    ),
     'core_message_message_processor_config_form' => array(
         'classname' => 'core_message_external',
         'methodname' => 'message_processor_config_form',
@@ -1137,6 +1146,13 @@ $functions = array(
         'type'          => 'write',
         'ajax' => true,
     ),
+    'core_question_get_random_question_summaries' => array(
+        'classname' => 'core_question_external',
+        'methodname' => 'get_random_question_summaries',
+        'description' => 'Get the random question set for a criteria',
+        'type' => 'read',
+        'ajax' => true,
+    ),
     'core_rating_get_item_ratings' => array(
         'classname' => 'core_rating_external',
         'methodname' => 'get_item_ratings',
@@ -1168,6 +1184,13 @@ $functions = array(
         'description' => 'Manual role unassignments.',
         'type' => 'write',
         'capabilities' => 'moodle/role:assign'
+    ),
+    'core_search_get_relevant_users' => array(
+        'classname' => '\core_search\external',
+        'methodname' => 'get_relevant_users',
+        'description' => 'Gets relevant users for a search request.',
+        'type' => 'read',
+        'ajax' => true
     ),
     'core_tag_get_tagindex' => array(
         'classname' => 'core_tag_external',

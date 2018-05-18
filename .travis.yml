@@ -207,7 +207,7 @@ before_script:
         # We need the official upstream for comparison
         git remote add upstream https://github.com/moodle/moodle.git;
 
-        git fetch upstream master;
+        git fetch upstream MOODLE_35_STABLE;
         export GIT_PREVIOUS_COMMIT="`git merge-base FETCH_HEAD $TRAVIS_COMMIT`";
         export GIT_COMMIT="$TRAVIS_COMMIT";
         export UPSTREAM_FETCH_HEAD=`git rev-parse FETCH_HEAD`
@@ -248,7 +248,7 @@ script:
     - >
       if [ "$TASK" = 'PHPUNIT' ];
       then
-        vendor/bin/phpunit;
+        vendor/bin/phpunit --fail-on-risky --disallow-test-output --verbose;
       fi
 
     - >
