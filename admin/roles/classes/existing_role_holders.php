@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 class core_role_existing_role_holders extends core_role_assign_user_selector_base {
 
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         list($ctxcondition, $ctxparams) = $DB->get_in_or_equal($this->context->get_parent_context_ids(true), SQL_PARAMS_NAMED, 'ctx');
@@ -43,11 +43,38 @@ class core_role_existing_role_holders extends core_role_assign_user_selector_bas
 
         $fields = "SELECT ra.id AS raid, u.id, " . $this->userfieldsselects . ", ra.contextid, ra.component ";
         $countfields = "SELECT COUNT(1) ";
-        $sql = "FROM {role_assignments} ra
-                  JOIN {user} u ON u.id = ra.userid
-                  JOIN {context} ctx ON ra.contextid = ctx.id
-                       $this->userfieldsjoin
-                 WHERE $wherecondition
+        
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         * Adaptation pour Moodle 4.1
+         */
+        global $USER;
+        
+        // Initialisation des tables et jointures
+        $tables = ['{role_assignments} ra'];
+        $tables[] = '{user} u ON u.id = ra.userid';
+        $tables[] = '{context} ctx ON ra.contextid = ctx.id';
+        $join = $this->userfieldsjoin;
+        
+        // Ajout du filtre par établissement si l'utilisateur courant a un établissement défini
+        if (!empty($USER->profile["etablissement"])) {
+            // Ajout des jointures pour les tables de profil utilisateur
+            $tables[] = '{user_info_data} uid ON u.id = uid.userid';
+            $tables[] = '{user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname';
+            
+            // Ajout de la condition sur l'établissement
+            $wherecondition .= " AND uid.data = :fieldvalue";
+            
+            // Ajout des paramètres pour l'établissement
+            $params['fieldname'] = 'etablissement';
+            $params['fieldvalue'] = $USER->profile["etablissement"];
+            
+            // Remplacer la jointure standard par nos jointures personnalisées
+            $join = '';
+        }
+        
+        // Construction de la clause FROM avec les jointures
+        $sql = " FROM " . implode(" JOIN ", $tables) . $join . " WHERE $wherecondition
                        AND ctx.id $ctxcondition
                        AND ra.roleid = :roleid";
          $order = " ORDER BY ctx.depth DESC, ra.component, $sort";
