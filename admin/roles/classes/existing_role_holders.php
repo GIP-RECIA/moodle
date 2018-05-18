@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 class core_role_existing_role_holders extends core_role_assign_user_selector_base {
 
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         list($ctxcondition, $ctxparams) = $DB->get_in_or_equal($this->context->get_parent_context_ids(true), SQL_PARAMS_NAMED, 'ctx');
@@ -43,10 +43,21 @@ class core_role_existing_role_holders extends core_role_assign_user_selector_bas
 
         $fields = "SELECT ra.id AS raid," . $this->required_fields_sql('u') . ",ra.contextid,ra.component ";
         $countfields = "SELECT COUNT(1) ";
-        $sql = "FROM {role_assignments} ra
-                  JOIN {user} u ON u.id = ra.userid
-                  JOIN {context} ctx ON ra.contextid = ctx.id
-                 WHERE $wherecondition
+
+        /**
+         * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+         */
+        $from = array("{role_assignments} ra");
+        $from[] = "{user} u ON u.id = ra.userid";
+        $from[] = "{context} ctx ON ra.contextid = ctx.id";
+        $from[] = "{user_info_data} uid ON u.id = uid.userid";
+        $from[] = "{user_info_field} uif ON uif.id = uid.fieldid";
+
+        if(!empty($USER->profile["etablissement"])){
+            $wherecondition = sprintf("uif.shortname = 'etablissement' AND uid.data = '%s' AND %s", $USER->profile["etablissement"], $wherecondition);
+        }
+
+        $sql = " FROM " . implode(" LEFT JOIN ", $from) . " WHERE $wherecondition
                        AND ctx.id $ctxcondition
                        AND ra.roleid = :roleid";
          $order = " ORDER BY ctx.depth DESC, ra.component, $sort";
