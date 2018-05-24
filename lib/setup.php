@@ -972,7 +972,7 @@ if ($USER && isset($USER->username)) {
 }
 
 if(!empty($USER->profile['etablissement'])){
-    $SESSION->theme = $USER->profile['etablissement'];
+    $SESSION->theme = strtolower(str_replace(" ","",$USER->profile['etablissement']));
 }
 
 // Ensure the urlrewriteclass is setup correctly (to avoid crippling site).
