@@ -33,6 +33,8 @@ defined('MOODLE_INTERNAL') || die();
 define('NAVIGATION_CACHE_NAME', 'navigation');
 define('NAVIGATION_SITE_ADMIN_CACHE_NAME', 'navigationsiteadmin');
 
+include_once(__DIR__ . "/../course/lib.php");
+
 /**
  * This class is used to represent a node in a navigation tree
  *
