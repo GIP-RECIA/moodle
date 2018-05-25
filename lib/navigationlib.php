@@ -1681,7 +1681,7 @@ class global_navigation extends navigation_node {
         }
 
         // If the user is not logged in modify the navigation structure.
-        if (!isloggedin()) {
+        if (!isloggedin() && array_key_exists('site', $this->rootnodes) && !is_null($this->rootnodes['site']->children)) {
             $activities = clone($this->rootnodes['site']->children);
             $this->rootnodes['site']->remove();
             $children = clone($this->children);
