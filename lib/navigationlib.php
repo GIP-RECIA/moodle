@@ -1435,7 +1435,7 @@ class global_navigation extends navigation_node {
 
         // If the user is not logged in modify the navigation structure as detailed
         // in {@link http://docs.moodle.org/dev/Navigation_2.0_structure}
-        if (!isloggedin()) {
+        if (!isloggedin() && !is_null($this->rootnodes['site']->children)) {
             $activities = clone($this->rootnodes['site']->children);
             $this->rootnodes['site']->remove();
             $children = clone($this->children);
