@@ -2005,7 +2005,9 @@ abstract class enrol_plugin {
         $ue->modifierid = $USER->id;
         $ue->timemodified = time();
         $DB->update_record('user_enrolments', $ue);
-        context_course::instance($instance->courseid)->mark_dirty(); // reset enrol caches
+
+        // User enrolments have changed, so mark user as dirty.
+        mark_user_dirty($userid);
 
         // Invalidate core_access cache for get_suspended_userids.
         cache_helper::invalidate_by_definition('core', 'suspended_userids', array(), array($instance->courseid));
@@ -2103,8 +2105,9 @@ abstract class enrol_plugin {
                     )
                 );
         $event->trigger();
-        // reset all enrol caches
-        $context->mark_dirty();
+
+        // User enrolments have changed, so mark user as dirty.
+        mark_user_dirty($userid);
 
         // Check if courrse contacts cache needs to be cleared.
         require_once($CFG->libdir . '/coursecatlib.php');
