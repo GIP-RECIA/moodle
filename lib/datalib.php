@@ -402,7 +402,7 @@ function users_order_by_sql($usertablealias = '', $search = null, context $conte
  */
 function get_users($get=true, $search='', $confirmed=false, array $exceptions=null, $sort='firstname ASC',
                    $firstinitial='', $lastinitial='', $page='', $recordsperpage='', $fields='*', $extraselect='', array $extraparams=null) {
-    global $DB, $CFG;
+    global $DB, $CFG, $USER;
 
     if ($get && !$recordsperpage) {
         debugging('Call to get_users with $get = true no $recordsperpage limit. ' .
@@ -413,7 +413,7 @@ function get_users($get=true, $search='', $confirmed=false, array $exceptions=nu
 
     $fullname  = $DB->sql_fullname();
 
-    $select = " id <> :guestid AND deleted = 0";
+    $select = " u.id <> :guestid AND u.deleted = 0";
     $params = array('guestid'=>$CFG->siteguest);
 
     if (!empty($search)){
@@ -448,11 +448,31 @@ function get_users($get=true, $search='', $confirmed=false, array $exceptions=nu
         $params = $params + (array)$extraparams;
     }
 
-    if ($get) {
-        return $DB->get_records_select('user', $select, $params, $sort, $fields, $page, $recordsperpage);
-    } else {
-        return $DB->count_records_select('user', $select, $params);
+    /**
+     * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+     */
+    if(!empty($USER->profile["etablissement"])){
+        $select = sprintf("uif.shortname = 'etablissement' AND uid.data = '%s' AND %s", $USER->profile["etablissement"], $select);
     }
+
+    if(!$get){
+        $fields = "COUNT(*)";
+    }
+    $sql = array();
+    $sql[] = "SELECT $fields";
+    $sql[] = "FROM {user} u";
+    $sql[] = "LEFT JOIN {user_info_data} uid ON u.id = uid.userid";
+    $sql[] = "LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid";
+    $sql[] = "WHERE $select";
+    if(!empty($sort)){
+        $sql[] = "ORDER BY $sort";
+    }
+
+    $sql = implode(" ",$sql);
+    if($get) {
+        return $DB->get_record_sql($sql, $params);
+    }
+    return $DB->count_records_sql($sql, $params);
 }
 
 
