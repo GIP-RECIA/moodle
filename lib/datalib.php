@@ -428,7 +428,7 @@ function users_order_by_sql(string $usertablealias = '', ?string $search = null,
  */
 function get_users($get=true, $search='', $confirmed=false, ?array $exceptions=null, $sort='firstname ASC',
                    $firstinitial='', $lastinitial='', $page='', $recordsperpage='', $fields='*', $extraselect='', ?array $extraparams=null) {
-    global $DB, $CFG;
+    global $DB, $CFG, $USER;
 
     if ($get && !$recordsperpage) {
         debugging('Call to get_users with $get = true no $recordsperpage limit. ' .
@@ -439,7 +439,7 @@ function get_users($get=true, $search='', $confirmed=false, ?array $exceptions=n
 
     $fullname  = $DB->sql_fullname();
 
-    $select = " id <> :guestid AND deleted = 0";
+    $select = " u.id <> :guestid AND u.deleted = 0";
     $params = array('guestid'=>$CFG->siteguest);
 
     if (!empty($search)){
@@ -474,11 +474,46 @@ function get_users($get=true, $search='', $confirmed=false, ?array $exceptions=n
         $params = $params + (array)$extraparams;
     }
 
-    if ($get) {
-        return $DB->get_records_select('user', $select, $params, $sort, $fields, $page, $recordsperpage);
-    } else {
-        return $DB->count_records_select('user', $select, $params);
+    /**
+     * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+     * Adaptation pour Moodle 4.1
+     */
+    // Construction de la requête SQL de base
+    $joins = [];
+    
+    // Ajout du filtre par établissement si l'utilisateur courant a un établissement défini
+    if (!empty($USER->profile["etablissement"])) {
+        $joins[] = '{user_info_data} uid ON u.id = uid.userid';
+        $joins[] = '{user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname';
+        $select .= " AND uid.data = :fieldvalue";
+        $params['fieldname'] = 'etablissement';
+        $params['fieldvalue'] = $USER->profile["etablissement"];
     }
+    
+    // Préparation de la requête
+    if (!$get) {
+        $fields = "COUNT(*)";
+    }
+    
+    $sql = "SELECT $fields FROM {user} u";
+    
+    // Ajout des jointures si nécessaires
+    if (!empty($joins)) {
+        $sql .= " LEFT JOIN " . implode(" LEFT JOIN ", $joins);
+    }
+    
+    $sql .= " WHERE $select";
+    
+    // Ajout du tri si nécessaire
+    if (!empty($sort)) {
+        $sql .= " ORDER BY $sort";
+    }
+    
+    // Exécution de la requête et retour des résultats
+    if ($get) {
+        return $DB->get_records_sql($sql, $params, $page, $recordsperpage);
+    }
+    return $DB->count_records_sql($sql, $params);
 }
 
 
