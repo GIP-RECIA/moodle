@@ -972,7 +972,10 @@ if ($USER && isset($USER->username)) {
 }
 
 if(!empty($USER->profile['etablissement'])){
-    $SESSION->theme = strtolower(str_replace(" ","",$USER->profile['etablissement']));
+    if(file_exists($CFG->dirroot . "/local/theme_esco/lib.php")){
+        include_once $CFG->dirroot . "/local/theme_esco/lib.php";
+        $SESSION->theme = local_theme_esco_theme_name($USER->profile['etablissement']);
+    }
 }
 
 // Ensure the urlrewriteclass is setup correctly (to avoid crippling site).
