@@ -2365,26 +2365,18 @@ class restore_fix_restorer_access_step extends restore_execution_step {
             return;
         }
 
+        var_dump("ROLE ID : " . $CFG->restorenewroleid);
         if (empty($CFG->restorernewroleid)) {
             // Bad luck, no fallback role for restorers specified
+            die();
             return;
         }
 
         $courseid = $this->get_courseid();
         $context = context_course::instance($courseid);
 
-        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
-            // Current user may access the course (admin, category manager or restored teacher enrolment usually)
-            return;
-        }
-
         // Try to add role only - we do not need enrolment if user has moodle/course:view or is already enrolled
         role_assign($CFG->restorernewroleid, $userid, $context);
-
-        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
-            // Extra role is enough, yay!
-            return;
-        }
 
         // The last chance is to create manual enrol if it does not exist and and try to enrol the current user,
         // hopefully admin selected suitable $CFG->restorernewroleid ...
