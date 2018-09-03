@@ -32,6 +32,9 @@ if ($ADMIN->fulltree) {
         BLOCK_MYOVERVIEW_TIMELINE_VIEW => get_string('timeline', 'block_myoverview'),
         BLOCK_MYOVERVIEW_COURSES_VIEW => get_string('courses')
     ];
+    if(defined("BLOCK_MYOVERVIEW_ROLES_VIEW")){
+        $options[] = BLOCK_MYOVERVIEW_ROLES_VIEW;
+    }
 
     $settings->add(new admin_setting_configselect('block_myoverview/defaulttab',
         get_string('defaulttab', 'block_myoverview'),

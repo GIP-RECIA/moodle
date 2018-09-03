@@ -40,12 +40,16 @@ define('BLOCK_MYOVERVIEW_COURSES_VIEW', 'courses');
  * @return array
  */
 function block_myoverview_user_preferences() {
+    $choices = array(BLOCK_MYOVERVIEW_TIMELINE_VIEW, BLOCK_MYOVERVIEW_COURSES_VIEW);
+    if(defined("BLOCK_MYOVERVIEW_ROLES_VIEW")){
+        $choices[] = BLOCK_MYOVERVIEW_ROLES_VIEW;
+    }
     $preferences = array();
     $preferences['block_myoverview_last_tab'] = array(
         'type' => PARAM_ALPHA,
         'null' => NULL_NOT_ALLOWED,
         'default' => BLOCK_MYOVERVIEW_TIMELINE_VIEW,
-        'choices' => array(BLOCK_MYOVERVIEW_TIMELINE_VIEW, BLOCK_MYOVERVIEW_COURSES_VIEW)
+        'choices' => $choices,
     );
 
     return $preferences;
