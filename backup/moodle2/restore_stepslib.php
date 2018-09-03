@@ -2454,10 +2454,10 @@ class restore_fix_restorer_access_step extends restore_execution_step {
         ///
 
 
-        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
-            // Extra role is enough, yay!
-            return;
-        }
+//        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
+//            // Extra role is enough, yay!
+//            return;
+//        }
 
         // The last chance is to create manual enrol if it does not exist and and try to enrol the current user,
         // hopefully admin selected suitable $CFG->restorernewroleid ...
