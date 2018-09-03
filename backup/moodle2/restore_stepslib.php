@@ -2434,7 +2434,7 @@ class restore_fix_restorer_access_step extends restore_execution_step {
         $courseid = $this->get_courseid();
         $context = context_course::instance($courseid);
 
-        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
+        if (is_enrolled($context, $userid)) {
             // Current user may access the course (admin, category manager or restored teacher enrolment usually)
             return;
         }
