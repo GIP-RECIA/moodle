@@ -456,7 +456,12 @@ function get_users($get=true, $search='', $confirmed=false, array $exceptions=nu
     }
 
     if ($extraselect) {
-        $select .= " AND $extraselect";
+        $extraselect_array = explode(" AND ", $extraselect);
+        foreach($extraselect_array as $key => $value){
+            if(stripos($value, "CONCAT") === 0) continue;
+            $extraselect_array[$key] = "u.$value";
+        }
+        $select .= " AND " . implode(" AND ", $extraselect_array);
         $params = $params + (array)$extraparams;
     }
 
@@ -549,11 +554,19 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
     }
 
     if ($extraselect) {
-        // The extra WHERE clause may refer to the 'id' column which can now be ambiguous because we
-        // changed the query to include joins, so replace any 'id' that is on its own (no alias)
-        // with 'u.id'.
+        // Traitement amélioré de $extraselect pour assurer la compatibilité avec les requêtes complexes
+        // tout en préfixant correctement les colonnes avec 'u.'
+        
+        // 1. D'abord, on applique l'expression régulière de Moodle 4.1 pour gérer 'id'
         $extraselect = preg_replace('~([ =]|^)id([ =]|$)~', '$1u.id$2', $extraselect);
-        $select .= " AND $extraselect";
+        
+        // 2. Ensuite, on divise les conditions et on préfixe les colonnes qui n'ont pas d'alias
+        $extraselect_array = explode(' AND ', $extraselect);
+        foreach ($extraselect_array as $key => $value) {
+            if(stripos($value, "CONCAT") === 0) continue;
+            $extraselect_array[$key] = "u.$value";
+        }
+        $select .= " AND " . implode(" AND ", $extraselect_array);
         $params = $params + (array)$extraparams;
     }
 
@@ -578,12 +591,12 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
     /**
      * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
      */
-    $additionalsql = '';
+    $additionaljoins = '';
     $additionalparams = [];
     
     if(!empty($USER->profile["etablissement"])) {
         // Dans Moodle 4.1, nous devons ajouter des jointures supplémentaires
-        $additionalsql = "
+        $additionaljoins = "
             JOIN {user_info_data} uid ON uid.userid = u.id
             JOIN {user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname AND uid.data = :fieldvalue
         ";
@@ -592,14 +605,31 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
             'fieldvalue' => $USER->profile["etablissement"]
         ];
     }
+    
+    // Construction de la requête SQL finale avec les jointures nécessaires
+    $sql = "SELECT u.id $selects
+           FROM {user} u";
+    
+    // Ajout des jointures standards
+    if (!empty($joins)) {
+        $sql .= "\n" . implode("\n", $joins);
+    }
+    
+    // Ajout des jointures pour le filtre établissement
+    if (!empty($additionaljoins)) {
+        $sql .= "\n" . $additionaljoins;
+    }
+    
+    $sql .= "\nWHERE $select";
+    
+    // Ajout du tri
+    if (!empty($sort)) {
+        $sql .= "\n$sort";
+    }
 
     // warning: will return UNCONFIRMED USERS
-    return $DB->get_records_sql("SELECT u.id $selects
-                                    FROM {user} u
-                                         $joins
-                                         $additionalsql
-                                   WHERE $select
-                                   $sort", array_merge($params, $joinparams, $additionalparams), $page, $recordsperpage);
+    
+    return $DB->get_records_sql($sql, array_merge($params, $joinparams, $additionalparams), $page, $recordsperpage);
 }
 
 
