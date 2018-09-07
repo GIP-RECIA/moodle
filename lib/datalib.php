@@ -441,7 +441,11 @@ function get_users($get=true, $search='', $confirmed=false, array $exceptions=nu
     }
 
     if ($extraselect) {
-        $select .= " AND $extraselect";
+        $extraselect_array = explode(" AND ", $extraselect);
+        foreach($extraselect_array as $key => $value){
+            $extraselect_array[$key] = "u.$value";
+        }
+        $select .= " AND " . implode(" AND ", $extraselect_array);
         $params = $params + (array)$extraparams;
     }
 
@@ -519,7 +523,11 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
     }
 
     if ($extraselect) {
-        $select .= " AND $extraselect";
+        $extraselect_array = explode(" AND ", $extraselect);
+        foreach($extraselect_array as $key => $value){
+            $extraselect_array[$key] = "u.$value";
+        }
+        $select .= " AND " . implode(" AND ", $extraselect_array);
         $params = $params + (array)$extraparams;
     }
 
@@ -551,6 +559,7 @@ function get_users_listing($sort='lastaccess', $dir='ASC', $page=0, $recordsperp
                                   WHERE $select
                                   $sort";
     // warning: will return UNCONFIRMED USERS
+
     return $DB->get_records_sql($sql, $params, $page, $recordsperpage);
 
 }
