@@ -1490,7 +1490,7 @@ class global_navigation extends navigation_node {
             case CONTEXT_COURSECAT :
                 // This is essential, we must load categories.
 		// MODIFICATION RECIA -DEBUT
-               // $this->load_all_categories($this->page->context->instanceid, true);
+                $this->load_all_categories($this->page->context->instanceid, false);
 		//MODIFICATION RECIA - FIN
                 break;
             case CONTEXT_BLOCK :
