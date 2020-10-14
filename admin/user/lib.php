@@ -40,6 +40,7 @@ function get_selection_data($ufiltering) {
 
     // get the SQL filter
     list($sqlwhere, $params) = $ufiltering->get_sql_filter($base_sql_where,$base_sql_parameters);
+    $sqlwhere = str_replace("AND id IN", "AND u.id IN", $sqlwhere);
 
     $from = implode(" LEFT JOIN ", $from);
     $order_by = "fullname ASC";
