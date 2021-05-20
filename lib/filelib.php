@@ -478,20 +478,28 @@ function file_rewrite_pluginfile_urls($text, $file, $contextid, $component, $fil
         $file = $file . '?file=';
     }
 
-    $baseurl = "$CFG->wwwroot/$file/$contextid/$component/$filearea/";
+    $relativebaseurl = "/$file/$contextid/$component/$filearea/";
 
     if ($itemid !== null) {
-        $baseurl .= "$itemid/";
+        $relativebaseurl .= "$itemid/";
     }
+
+    $baseurl = "$CFG->wwwroot$relativebaseurl";
+    $relativebaseurl = "$CFG->webpath$relativebaseurl";
 
     if ($options['forcehttps']) {
         $baseurl = str_replace('http://', 'https://', $baseurl);
     }
 
     if (!empty($options['reverse'])) {
+        if (strpos($text, $relativebaseurl) === 0) {
+            return str_replace($relativebaseurl, '@@PLUGINFILE@@/', $text);
+        }
+
         return str_replace($baseurl, '@@PLUGINFILE@@/', $text);
     } else {
-        return str_replace('@@PLUGINFILE@@/', $baseurl, $text);
+        // On remplace par la relativeurl au lieu de la baseurl pour ne pas avoir de soucis de domaine
+        return str_replace('@@PLUGINFILE@@/', $relativebaseurl, $text);
     }
 }
 
