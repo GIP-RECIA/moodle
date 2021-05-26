@@ -121,8 +121,16 @@ class backup_xml_transformer extends xml_contenttransformer {
     }
 
     private function encode_absolute_links($content) {
+        global $CFG;
+
         foreach ($this->absolute_links_encoders as $classname => $methodname) {
-            $content = call_user_func(array($classname, $methodname), $content);
+            // Système permettant de gérer l'encodage des différentes urls du multidomaine et les urls relatives lors du backup
+            $backupwwwroot = $CFG->wwwroot;
+            foreach ($CFG->lstwwwroot as $wwwroot) {
+                $CFG->wwwroot = $wwwroot;
+                $content = call_user_func(array($classname, $methodname), $content);
+            }
+            $CFG->wwwroot = $backupwwwroot;
         }
         return $content;
     }
