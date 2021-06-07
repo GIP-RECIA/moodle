@@ -345,11 +345,12 @@ class moodle_url {
                 $url = substr($url, 0, $apos);
             }
 
-            // Commenté pour conserver des url relatives et éviter le "/moodle/moodle" quand il transformait une url relative en non relative
-            // Normalise shortened form of our url ex.: '/course/view.php'.
-            //if (strpos($url, '/') === 0) {
-            //    $url = $CFG->wwwroot.$url;
-            //}
+            // Fix multidomaine
+            // On conserver les url relatives commencant par le webpath et on évite le "/moodle/moodle" quand il transformait une url relative en non relative
+            // Pour les autres url on garde l'ancien système
+            if (strpos($url, $CFG->webpath.'/') !== 0 && strpos($url, '/') === 0) {
+                $url = $CFG->wwwroot.$url;
+            }
 
             if ($CFG->admin !== 'admin') {
                 if (strpos($url, "$CFG->wwwroot/admin/") === 0) {
