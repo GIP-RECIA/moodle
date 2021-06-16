@@ -865,6 +865,8 @@ class moodle_url {
         if (($url === $CFG->wwwroot) || (strpos($url, $CFG->wwwroot.'/') === 0)) {
             $localurl = substr($url, strlen($CFG->wwwroot));
             return !empty($localurl) ? $localurl : '';
+        } else if (substr($url, 0, 1) === '/') {
+            return $url;
         } else {
             throw new coding_exception('out_as_local_url called on a non-local URL');
         }
@@ -1195,7 +1197,7 @@ function format_text_menu() {
  */
 function format_text($text, $format = FORMAT_MOODLE, $options = null, $courseiddonotuse = null) {
     global $CFG, $DB, $PAGE;
-
+    
     if ($text === '' || is_null($text)) {
         // No need to do any filters and cleaning.
         return '';

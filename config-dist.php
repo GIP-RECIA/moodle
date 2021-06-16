@@ -108,11 +108,11 @@ $CFG->webpath = '/moodle';
 
 $CFG->wwwroot   = "https://" . $domainName . $CFG->webpath;
 
-// Liste des différents chemin d'accès à l'application, ainsi que "vide" pour les urls en relatif
+// Liste des différents chemin d'accès à l'application, ainsi que $CFG->webpath pour les urls en relatif
 $CFG->lstwwwroot = [
     $CFG->wwwroot,
 //    "https://" . "AutreDomaine" . $CFG->webpath,
-    '',
+    $CFG->webpath,
   ];
 
 //=========================================================================
