@@ -780,7 +780,7 @@ class moodle_url {
     public static function make_pluginfile_url($contextid, $component, $area, $itemid, $pathname, $filename,
                                                $forcedownload = false) {
         global $CFG;
-        $urlbase = "$CFG->wwwroot/pluginfile.php";
+        $urlbase = "$CFG->webpath/pluginfile.php";
         if ($itemid === null) {
             return self::make_file_url($urlbase, "/$contextid/$component/$area".$pathname.$filename, $forcedownload);
         } else {
@@ -806,7 +806,7 @@ class moodle_url {
     public static function make_webservice_pluginfile_url($contextid, $component, $area, $itemid, $pathname, $filename,
                                                $forcedownload = false) {
         global $CFG;
-        $urlbase = "$CFG->wwwroot/webservice/pluginfile.php";
+        $urlbase = "$CFG->webpath/webservice/pluginfile.php";
         if ($itemid === null) {
             return self::make_file_url($urlbase, "/$contextid/$component/$area".$pathname.$filename, $forcedownload);
         } else {
@@ -825,7 +825,7 @@ class moodle_url {
      */
     public static function make_draftfile_url($draftid, $pathname, $filename, $forcedownload = false) {
         global $CFG, $USER;
-        $urlbase = "$CFG->wwwroot/draftfile.php";
+        $urlbase = "$CFG->webpath/draftfile.php";
         $context = context_user::instance($USER->id);
 
         return self::make_file_url($urlbase, "/$context->id/user/draft/$draftid".$pathname.$filename, $forcedownload);
@@ -842,7 +842,7 @@ class moodle_url {
     public static function make_legacyfile_url($courseid, $filepath, $forcedownload = false) {
         global $CFG;
 
-        $urlbase = "$CFG->wwwroot/file.php";
+        $urlbase = "$CFG->webpath/file.php";
         return self::make_file_url($urlbase, '/'.$courseid.'/'.$filepath, $forcedownload);
     }
 
@@ -1319,7 +1319,9 @@ function format_text($text, $format = FORMAT_MOODLE, $options = null, $courseidd
         // this happens when developers forget to post process the text.
         // The only potential problem is that somebody might try to format
         // the text before storing into database which would be itself big bug..
-        $text = str_replace("\"$CFG->wwwroot/draftfile.php", "\"$CFG->wwwroot/brokenfile.php#", $text);
+        foreach ($CFG->lstwwwroot as $wwwroot) {
+            $text = str_replace("\"$wwwroot/draftfile.php", "\"$CFG->webpath/brokenfile.php#", $text);
+        }
 
         if ($CFG->debugdeveloper) {
             if (strpos($text, '@@PLUGINFILE@@/') !== false) {

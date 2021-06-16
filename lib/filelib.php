@@ -436,7 +436,9 @@ function file_prepare_draft_area(&$draftitemid, $contextid, $component, $fileare
             // at this point there should not be any draftfile links yet,
             // because this is a new text from database that should still contain the @@pluginfile@@ links
             // this happens when developers forget to post process the text
-            $text = str_replace("\"$CFG->wwwroot/draftfile.php", "\"$CFG->wwwroot/brokenfile.php#", $text);
+            foreach ($CFG->lstwwwroot as $wwwroot) {
+                $text = str_replace("\"$wwwroot/draftfile.php", "\"$CFG->webpath/brokenfile.php#", $text);
+            }
         }
     } else {
         // nothing to do
@@ -828,16 +830,19 @@ function file_restore_source_field_from_draft_file($storedfile) {
 function file_remove_editor_orphaned_files($editor) {
     global $CFG, $USER;
 
-    // Find those draft files included in the text, and generate their hashes.
-    $context = context_user::instance($USER->id);
-    $baseurl = $CFG->wwwroot . '/draftfile.php/' . $context->id . '/user/draft/' . $editor['itemid'] . '/';
-    $pattern = "/" . preg_quote($baseurl, '/') . "(.+?)[\?\"']/";
-    preg_match_all($pattern, $editor['text'], $matches);
     $usedfilehashes = [];
-    foreach ($matches[1] as $matchedfilename) {
-        $matchedfilename = urldecode($matchedfilename);
-        $usedfilehashes[] = \file_storage::get_pathname_hash($context->id, 'user', 'draft', $editor['itemid'], '/',
-                                                             $matchedfilename);
+
+    foreach ($CFG->lstwwwroot as $wwwroot) {
+        // Find those draft files included in the text, and generate their hashes.
+        $context = context_user::instance($USER->id);
+        $baseurl = $wwwroot . '/draftfile.php/' . $context->id . '/user/draft/' . $editor['itemid'] . '/';
+        $pattern = "/" . preg_quote($baseurl, '/') . "(.+?)[\?\"']/";
+        preg_match_all($pattern, $editor['text'], $matches);
+        foreach ($matches[1] as $matchedfilename) {
+            $matchedfilename = urldecode($matchedfilename);
+            $usedfilehashes[] = \file_storage::get_pathname_hash($context->id, 'user', 'draft', $editor['itemid'], '/',
+                                                                $matchedfilename);
+        }
     }
 
     // Now, compare the hashes of all draft files, and remove those which don't match used files.
@@ -1078,24 +1083,25 @@ function file_rewrite_urls_to_pluginfile($text, $draftitemid, $forcehttps = fals
 
     $usercontext = context_user::instance($USER->id);
 
-    $wwwroot = $CFG->wwwroot;
-    if ($forcehttps) {
-        $wwwroot = str_replace('http://', 'https://', $wwwroot);
-    }
-
-    // relink embedded files if text submitted - no absolute links allowed in database!
-    $text = str_ireplace("$wwwroot/draftfile.php/$usercontext->id/user/draft/$draftitemid/", '@@PLUGINFILE@@/', $text);
-
-    if (strpos($text, 'draftfile.php?file=') !== false) {
-        $matches = array();
-        preg_match_all("!$wwwroot/draftfile.php\?file=%2F{$usercontext->id}%2Fuser%2Fdraft%2F{$draftitemid}%2F[^'\",&<>|`\s:\\\\]+!iu", $text, $matches);
-        if ($matches) {
-            foreach ($matches[0] as $match) {
-                $replace = str_ireplace('%2F', '/', $match);
-                $text = str_replace($match, $replace, $text);
-            }
+    foreach ($CFG->lstwwwroot as $wwwroot) {
+        if ($forcehttps) {
+            $wwwroot = str_replace('http://', 'https://', $wwwroot);
         }
-        $text = str_ireplace("$wwwroot/draftfile.php?file=/$usercontext->id/user/draft/$draftitemid/", '@@PLUGINFILE@@/', $text);
+
+        // relink embedded files if text submitted - no absolute links allowed in database!
+        $text = str_ireplace("$wwwroot/draftfile.php/$usercontext->id/user/draft/$draftitemid/", '@@PLUGINFILE@@/', $text);
+
+        if (strpos($text, 'draftfile.php?file=') !== false) {
+            $matches = array();
+            preg_match_all("!$wwwroot/draftfile.php\?file=%2F{$usercontext->id}%2Fuser%2Fdraft%2F{$draftitemid}%2F[^'\",&<>|`\s:\\\\]+!iu", $text, $matches);
+            if ($matches) {
+                foreach ($matches[0] as $match) {
+                    $replace = str_ireplace('%2F', '/', $match);
+                    $text = str_replace($match, $replace, $text);
+                }
+            }
+            $text = str_ireplace("$wwwroot/draftfile.php?file=/$usercontext->id/user/draft/$draftitemid/", '@@PLUGINFILE@@/', $text);
+        }
     }
 
     return $text;
