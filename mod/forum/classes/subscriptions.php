@@ -277,14 +277,15 @@ class subscriptions {
             ORDER BY $sort";
 	 Fin remplacement RECIA */
 	$sql = "SELECT $fields, uid.domaine
-                 FROM {user} u
+                FROM {user} u
  	            JOIN ($esql) je ON je.id = u.id
  	            LEFT JOIN (
-                     SELECT userid, data domaine 
-                     FROM {user_info_data} uid 
-                     JOIN {user_info_field} uif ON uif.id = uid.fieldid
-                     WHERE uif.name = 'Domaine'
-                 ) uid ON uid.userid = u.id
+                    SELECT userid, data domaine 
+                    FROM {user_info_data} uid 
+                    JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                    WHERE uif.name = 'Domaine'
+                ) uid ON uid.userid = u.id
+                WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
  	            ORDER BY $sort";
         return $DB->get_records_sql($sql, $params);
     }
@@ -477,6 +478,7 @@ class subscriptions {
                             JOIN {user_info_field} uif ON uif.id = uid.fieldid 
                             WHERE uif.name = 'Domaine'
                         ) uid ON uid.userid = u.id
+                        WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
                         ORDER BY u.email ASC";
             } else {
 		/* Remplacement RECI
@@ -499,7 +501,7 @@ class subscriptions {
                             WHERE uif.name = 'Domaine'
                         ) uid ON uid.userid = u.id
                         WHERE
-                          s.forum = :forumid
+                          s.forum = :forumid AND u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
                         ORDER BY u.email ASC";
             }
             $results = $DB->get_records_sql($sql, $params);
