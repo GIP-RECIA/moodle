@@ -49,8 +49,9 @@ if (isset($_POST) && array_key_exists('logoutRequest', $_POST)) {
         $id_ticket_cas_deconnecte = $matches[1];
 
         // Delete session of user using CAS ST
-        if (!empty($CFG->session_handler_class) && $CFG->session_handler_class==="\core\session\memcached" ) {
-            error_log("\nIN FUNCTION",3,'/tmp/mysessioninvest.log' );
+        // Cas des sessions dans memcached
+        if (!empty($CFG->session_handler_class) && $CFG->session_handler_class === '\core\session\memcached') {
+            error_log("\nIN FUNCTION - memcached", 3, '/tmp/mysessioninvest.log');
             // Creation des serveurs memcached
             $servers = array ();
             $parts = explode (",",$CFG->session_memcached_save_path);
@@ -84,14 +85,14 @@ if (isset($_POST) && array_key_exists('logoutRequest', $_POST)) {
                 error_log("\n GOING TO FETCH RESULTS",3,'/tmp/mysessioninvest.log');
                 $keys = $memcached->getAllKeys();
 
-                foreach ($keys as $key){
+                foreach ($keys as $key) {
                     $result = $memcached->get($key);
                     if (strpos($result,$id_ticket_cas_deconnecte) !== false) {
                         // error_log("\n Ticket found");
                         $memcached->delete($key);
                         // error_log("\n Ticket deleted");
                         $prefix = ini_get('memcached.sess_prefix');
-                        $sid = substr($key, strlen($prefix) - strlen($key) );
+                        $sid = substr($key, strlen($prefix) - strlen($key));
                         $DB->delete_records('sessions', array('sid'=>$sid));
                         // A voir si on doit modifier le cookie de moodle
                         // Par contre souvent quand la requete arrive les headers ont déjà
@@ -99,6 +100,34 @@ if (isset($_POST) && array_key_exists('logoutRequest', $_POST)) {
                     }
                 }
             }
+        } else if (!empty($CFG->session_handler_class) && $CFG->session_handler_class === '\core\session\redis') {
+            $redis = new \Redis();
+            $seralizer = $CFG->session_redis_serializer_use_igbinary ? Redis::SERIALIZER_IGBINARY : Redis::SERIALIZER_PHP;
+            $prefix = $CFG->session_redis_prefix;
+
+            // Création de la connexion vers redis
+            $redis->connect($CFG->session_redis_host, (int)$CFG->session_redis_port);
+            $redis->auth($CFG->session_redis_auth);
+            $redis->setOption(Redis::OPT_SERIALIZER, $seralizer);
+            $redis->setOption(Redis::OPT_PREFIX, $prefix);
+            $redis->select((int)$CFG->session_redis_database);
+
+            // recherche de la session parmi toutes les sessions
+            $keys = $redis->keys('*');
+
+            foreach ($keys as $key) {
+                $result = $redis->get($key);
+
+                // Si la session est présente, on la détruit
+                if (strpos($result, '"'.$id_ticket_cas_deconnecte.'"') !== false) {
+                    $redis->unlink($key);
+                    $sid = substr($key, strlen($prefix) - strlen($key));
+                    $DB->delete_records('sessions', ['sid'=>$sid]);
+                }
+            }
+
+            // fermeture de la connexion
+            $redis->close();
         } else if(empty($CFG->dbsessions)) {
             // File session
             $dir = $CFG->dataroot .'/sessions';
