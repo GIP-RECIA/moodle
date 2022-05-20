@@ -1750,25 +1750,39 @@ abstract class restore_dbops {
     public static function calculate_course_names($courseid, $fullname, $shortname) {
         global $CFG, $DB;
 
-        $currentfullname = '';
-        $currentshortname = '';
-        $counter = 0;
-        // Iteratere while the name exists
-        do {
-            if ($counter) {
-                $suffixfull  = ' ' . get_string('copyasnoun') . ' ' . $counter;
+        $currentfullname = $fullname;
+        $currentshortname = substr($shortname, 0, 100);
+        // search for name without counter
+        $coursefull  = $DB->get_field_select('course', 'fullname', 'fullname = ? AND id != ?',array($currentfullname, $courseid), IGNORE_MULTIPLE);
+        $courseshort = $DB->get_field_select('course', 'shortname', 'shortname = ? AND id != ?', array($currentshortname, $courseid), IGNORE_MULTIPLE);
+
+        // if name without counter is found, we have to calculate name with counter
+        if ($coursefull || $courseshort) {
+            $suffixcoursefull = $fullname . ' ' . get_string('copyasnoun') . ' ';
+            // get all fullname with this mask and counter
+            $arraycoursefull = $DB->get_fieldset_select('course', 'fullname', 'fullname LIKE ? AND id != ?',
+                    array($suffixcoursefull . '%', $courseid));
+            $counter = 0;
+            $cutsize = strlen($suffixcoursefull);
+            // get all fullnames result and preserve only their counters
+            $arraycoursefullcounter = array_map(function($param) use ($cutsize) {
+                return substr($param, $cutsize, strlen($param));
+            }, $arraycoursefull);   
+
+            do {
+                // search fullname with counter that doesn't exist
+                do {
+                    $counter++;
+                } while (in_array(strval($counter), $arraycoursefullcounter));
+
+                // verify that shortname with counter doesn't exist
                 $suffixshort = '_' . $counter;
-            } else {
-                $suffixfull  = '';
-                $suffixshort = '';
-            }
-            $currentfullname = $fullname.$suffixfull;
-            $currentshortname = substr($shortname, 0, 100 - strlen($suffixshort)).$suffixshort; // < 100cc
-            $coursefull  = $DB->get_record_select('course', 'fullname = ? AND id != ?',
-                    array($currentfullname, $courseid), '*', IGNORE_MULTIPLE);
-            $courseshort = $DB->get_record_select('course', 'shortname = ? AND id != ?', array($currentshortname, $courseid));
-            $counter++;
-        } while ($coursefull || $courseshort);
+                $currentshortname = substr($shortname, 0, 100 - strlen($suffixshort)).$suffixshort; // < 100cc
+                $courseshort = $DB->get_field_select('course', 'shortname', 'shortname = ? AND id != ?', array($currentshortname, $courseid));
+            } while ($courseshortexist);
+
+            $currentfullname = $suffixcoursefull.$counter;
+        }
 
         // Return results
         return array($currentfullname, $currentshortname);
