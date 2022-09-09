@@ -80,8 +80,9 @@ $tagcollid = $tag->tagcollid;
 
 $PAGE->set_url($tag->get_view_url($exclusivemode, $fromctx, $ctx, $rec));
 $PAGE->set_subpage($tag->id);
-$tagnode = $PAGE->navigation->find('tags', null);
-$tagnode->make_active();
+if ($tagnode = $PAGE->navigation->find('tags', null)) {
+    $tagnode->make_active();
+}
 $PAGE->set_pagelayout('standard');
 $PAGE->set_blocks_editing_capability('moodle/tag:editblocks');
 
