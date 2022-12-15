@@ -58,7 +58,7 @@ class core_role_check_users_selector extends user_selector_base {
     }
 
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
         list($wherecondition, $params) = $this->search_sql($search, 'u');
 
@@ -66,6 +66,12 @@ class core_role_check_users_selector extends user_selector_base {
         $countfields = 'SELECT COUNT(1)';
 
         $coursecontext = $this->accesscontext->get_course_context(false);
+        $whereconditioninsubquery = "";
+
+        if(!empty($USER->profile["etablissement"])){
+            $whereconditioninsubquery = "WHERE uif.shortname = 'etablissement' AND uid.data = :etablissement";
+            $params['etablissement'] = $USER->profile["etablissement"];
+        }
 
         if ($coursecontext and $coursecontext != SITEID) {
             $sql1 = " FROM {user} u
@@ -73,6 +79,9 @@ class core_role_check_users_selector extends user_selector_base {
                               FROM {user} subu
                               JOIN {user_enrolments} ue ON (ue.userid = subu.id)
                               JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid1)
+                              LEFT JOIN {user_info_data} uid ON subu.id = uid.userid
+                              LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                              $whereconditioninsubquery
                            ) subq ON subq.id = u.id
                      WHERE $wherecondition";
             $params['courseid1'] = $coursecontext->instanceid;
@@ -81,6 +90,12 @@ class core_role_check_users_selector extends user_selector_base {
                 $sql2 = null;
             } else {
                 $sql2 = " FROM {user} u
+                     JOIN (SELECT DISTINCT subu.id
+                            FROM {user} subu
+                            LEFT JOIN {user_info_data} uid ON subu.id = uid.userid
+                            LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                            $whereconditioninsubquery
+                        ) subq ON subq.id = u.id
                      LEFT JOIN ({user_enrolments} ue
                                 JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid2)) ON (ue.userid = u.id)
                          WHERE $wherecondition
@@ -95,6 +110,12 @@ class core_role_check_users_selector extends user_selector_base {
             }
             $sql1 = null;
             $sql2 = " FROM {user} u
+                      JOIN (SELECT DISTINCT subu.id
+                            FROM {user} subu
+                            LEFT JOIN {user_info_data} uid ON subu.id = uid.userid
+                            LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                            $whereconditioninsubquery
+                        ) subq ON subq.id = u.id
                      WHERE $wherecondition";
         }
 
