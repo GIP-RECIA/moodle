@@ -59,7 +59,7 @@ class core_role_check_users_selector extends user_selector_base {
     }
 
     public function find_users($search) {
-        global $DB;
+        global $DB, $USER;
 
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         $params = array_merge($params, $this->userfieldsparams);
@@ -68,6 +68,12 @@ class core_role_check_users_selector extends user_selector_base {
         $countfields = 'SELECT COUNT(1)';
 
         $coursecontext = $this->accesscontext->get_course_context(false);
+        $whereconditioninsubquery = "";
+
+        if(!empty($USER->profile["etablissement"])){
+            $whereconditioninsubquery = "WHERE uif.shortname = 'etablissement' AND uid.data = :etablissement";
+            $params['etablissement'] = $USER->profile["etablissement"];
+        }
 
         if ($coursecontext and $coursecontext != SITEID) {
             $sql1 = " FROM {user} u
@@ -75,6 +81,9 @@ class core_role_check_users_selector extends user_selector_base {
                               FROM {user} subu
                               JOIN {user_enrolments} ue ON (ue.userid = subu.id)
                               JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid1)
+                              LEFT JOIN {user_info_data} uid ON subu.id = uid.userid
+                              LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                              $whereconditioninsubquery
                            ) subq ON subq.id = u.id
                            $this->userfieldsjoin
                      WHERE $wherecondition";
@@ -84,6 +93,12 @@ class core_role_check_users_selector extends user_selector_base {
                 $sql2 = null;
             } else {
                 $sql2 = " FROM {user} u
+                     JOIN (SELECT DISTINCT subu.id
+                            FROM {user} subu
+                            LEFT JOIN {user_info_data} uid ON subu.id = uid.userid
+                            LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                            $whereconditioninsubquery
+                        ) subq ON subq.id = u.id
                      LEFT JOIN ({user_enrolments} ue
                                 JOIN {enrol} e ON (e.id = ue.enrolid AND e.courseid = :courseid2)) ON (ue.userid = u.id)
                                $this->userfieldsjoin
@@ -98,9 +113,28 @@ class core_role_check_users_selector extends user_selector_base {
                 return array();
             }
             $sql1 = null;
-            $sql2 = " FROM {user} u
-                           $this->userfieldsjoin
-                     WHERE $wherecondition";
+            
+            /**
+             * Modification Pierre LEJEUNE, GIP Récia afin d'intégrer le champ établissement dans le filtre
+             * Adaptation pour Moodle 4.1
+             */
+            global $USER;
+            
+            $sql2 = " FROM {user} u";
+            
+            // Ajout des jointures standard pour les champs utilisateur
+            $sql2 .= "$this->userfieldsjoin";
+            
+            // Ajout du filtre par établissement si nécessaire
+            if (!empty($USER->profile["etablissement"])) {
+                $sql2 .= " LEFT JOIN {user_info_data} uid ON u.id = uid.userid
+                         LEFT JOIN {user_info_field} uif ON uif.id = uid.fieldid AND uif.shortname = :fieldname";
+                $wherecondition = "uid.data = :fieldvalue AND " . $wherecondition;
+                $params['fieldname'] = 'etablissement';
+                $params['fieldvalue'] = $USER->profile["etablissement"];
+            }
+            
+            $sql2 .= " WHERE $wherecondition";
         }
 
         $params['contextid'] = $this->accesscontext->id;
