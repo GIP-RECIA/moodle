@@ -42,7 +42,7 @@ if ($SITE->id == $course->id || !can_delete_course($id)) {
 // MODIFICATION RECIA | DEBUT | 2015-02-18
 ////////////////////////////////////////////////
 if (! strncmp($course->idnumber,"ZONE-PRIVEE", strlen("ZONE-PRIVEE")) ){
- 	print_error('cannotdeletecourse');
+    throw new \moodle_exception('cannotdeletecourse');
  }
 ////////////////////////////////////////////////
 // MODIFICATION RECIA | FIN
