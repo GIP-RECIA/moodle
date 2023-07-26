@@ -187,6 +187,9 @@ $CFG->directorypermissions = 02777;
 $CFG->admin = 'admin';
 
 
+// Ajout du role 11: enseignant dans la configuration de moodle
+$CFG->rolecourseownerid = 11;
+
 //=========================================================================
 // 6. OTHER MISCELLANEOUS SETTINGS (ignore these for new installations)
 //=========================================================================

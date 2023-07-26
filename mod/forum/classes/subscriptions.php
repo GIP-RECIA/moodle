@@ -259,6 +259,7 @@ class subscriptions {
      * @param string $sort sort order. As for get_users_by_capability.
      * @return array list of users.
      */
+	/* Modification GIP RECIA pour prise en compte des différents domaines */
     public static function get_potential_subscribers($context, $groupid, $fields, $sort = '') {
         global $DB;
 
@@ -268,13 +269,24 @@ class subscriptions {
             list($sort, $sortparams) = users_order_by_sql('u');
             $params = array_merge($params, $sortparams);
         }
-
+	/* Remplacement RECIA
         $sql = "SELECT $fields
                 FROM {user} u
                 JOIN ($esql) je ON je.id = u.id
                WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
             ORDER BY $sort";
-
+	 Fin remplacement RECIA */
+	$sql = "SELECT $fields, uid.domaine
+                FROM {user} u
+ 	            JOIN ($esql) je ON je.id = u.id
+ 	            LEFT JOIN (
+                    SELECT userid, data domaine 
+                    FROM {user_info_data} uid 
+                    JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                    WHERE uif.name = 'Domaine'
+                ) uid ON uid.userid = u.id
+                WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
+ 	            ORDER BY $sort";
         return $DB->get_records_sql($sql, $params);
     }
 
@@ -388,6 +400,7 @@ class subscriptions {
      * @param boolean $includediscussionsubscriptions Whether to take discussion subscriptions and unsubscriptions into consideration.
      * @return array list of users.
      */
+	/* Modification GIP RECIA pour prise en compte des différents domaines */
     public static function fetch_subscribed_users($forum, $groupid = 0, $context = null, $fields = null,
             $includediscussionsubscriptions = false) {
         global $CFG, $DB;
@@ -431,7 +444,7 @@ class subscriptions {
                 $params['sforumid'] = $forum->id;
                 $params['dsforumid'] = $forum->id;
                 $params['unsubscribed'] = self::FORUM_DISCUSSION_UNSUBSCRIBED;
-
+		/* Remplacement RECIA
                 $sql = "SELECT $fields
                         FROM (
                             SELECT userid FROM {forum_subscriptions} s
@@ -446,12 +459,47 @@ class subscriptions {
                         JOIN ($esql) je ON je.id = u.id
                         WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
                         ORDER BY u.email ASC";
-
+			Fin Remplacement RECIA*/
+		$sql = "SELECT $fields, uid.domaine
+                        FROM (
+                            SELECT userid FROM {forum_subscriptions} s
+                            WHERE
+                                s.forum = :sforumid
+                                UNION
+                            SELECT userid FROM {forum_discussion_subs} ds
+                            WHERE
+                                ds.forum = :dsforumid AND ds.preference <> :unsubscribed
+                        ) subscriptions
+                        JOIN {user} u ON u.id = subscriptions.userid
+                        JOIN ($esql) je ON je.id = u.id
+					    LEFT JOIN (
+                            SELECT userid, data domaine 
+                            FROM {user_info_data} uid 
+                            JOIN {user_info_field} uif ON uif.id = uid.fieldid 
+                            WHERE uif.name = 'Domaine'
+                        ) uid ON uid.userid = u.id
+                        WHERE u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
+                        ORDER BY u.email ASC";
             } else {
+		/* Remplacement RECI
                 $sql = "SELECT $fields
                         FROM {user} u
                         JOIN ($esql) je ON je.id = u.id
                         JOIN {forum_subscriptions} s ON s.userid = u.id
+                        WHERE
+                          s.forum = :forumid AND u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
+                        ORDER BY u.email ASC";
+			Fin Remplacement RECIA*/
+		 $sql = "SELECT $fields, uid.domaine
+                        FROM {user} u
+                        JOIN ($esql) je ON je.id = u.id
+                        JOIN {forum_subscriptions} s ON s.userid = u.id
+                        LEFT JOIN (
+                            SELECT userid, data domaine 
+                            FROM {user_info_data} uid 
+                            JOIN {user_info_field} uif ON uif.id = uid.fieldid 
+                            WHERE uif.name = 'Domaine'
+                        ) uid ON uid.userid = u.id
                         WHERE
                           s.forum = :forumid AND u.auth <> 'nologin' AND u.suspended = 0 AND u.confirmed = 1
                         ORDER BY u.email ASC";

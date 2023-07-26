@@ -2434,34 +2434,52 @@ class restore_fix_restorer_access_step extends restore_execution_step {
         $courseid = $this->get_courseid();
         $context = context_course::instance($courseid);
 
-        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
+        if (is_enrolled($context, $userid)) {
             // Current user may access the course (admin, category manager or restored teacher enrolment usually)
             return;
         }
 
         // Try to add role only - we do not need enrolment if user has moodle/course:view or is already enrolled
         role_assign($CFG->restorernewroleid, $userid, $context);
+	
+         ///////////////////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2014-03-04 corrigé le 2017-03-31
+        ////////////////////////////////////////////////////////////////
+        // Adding role "course owner" and "teacher" to the restored course
+       	role_assign($CFG->rolecourseownerid, $userid, $context);
+        role_assign($CFG->creatornewroleid, $userid, $context);
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+    	////////////////////////////////////////////////
+        ///
 
-        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
-            // Extra role is enough, yay!
-            return;
-        }
+
+//        if (is_enrolled($context, $userid, 'moodle/course:update', true) or is_viewing($context, $userid, 'moodle/course:update')) {
+//            // Extra role is enough, yay!
+//            return;
+//        }
 
         // The last chance is to create manual enrol if it does not exist and and try to enrol the current user,
         // hopefully admin selected suitable $CFG->restorernewroleid ...
-        if (!enrol_is_enabled('manual')) {
+        $enrol = null;
+        if (enrol_is_enabled('manual')) {
+            $enrol = enrol_get_plugin('manual');
+        }
+        if(is_null($enrol)) {
+            $enrol = enrol_get_plugin('simplesco');
+        }
+        if(is_null($enrol)){
             return;
         }
-        if (!$enrol = enrol_get_plugin('manual')) {
-            return;
-        }
-        if (!$DB->record_exists('enrol', array('enrol'=>'manual', 'courseid'=>$courseid))) {
+        $instances = $DB->get_records('enrol', array('enrol'=>$enrol->get_name(), 'courseid'=>$courseid));
+        if (count($instances) === 0) {
             $course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
             $fields = array('status'=>ENROL_INSTANCE_ENABLED, 'enrolperiod'=>$enrol->get_config('enrolperiod', 0), 'roleid'=>$enrol->get_config('roleid', 0));
             $enrol->add_instance($course, $fields);
+            $instances = $DB->get_records('enrol', array('enrol'=>$enrol->get_name(), 'courseid'=>$courseid));
         }
-
-        enrol_try_internal_enrol($courseid, $userid);
+        $instance = reset($instances);
+        $enrol->enrol_user($instance,$userid);
     }
 }
 

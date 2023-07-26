@@ -33,6 +33,8 @@ defined('MOODLE_INTERNAL') || die();
 define('NAVIGATION_CACHE_NAME', 'navigation');
 define('NAVIGATION_SITE_ADMIN_CACHE_NAME', 'navigationsiteadmin');
 
+include_once(__DIR__ . "/../course/lib.php");
+
 /**
  * This class is used to represent a node in a navigation tree
  *
@@ -1427,7 +1429,15 @@ class global_navigation extends navigation_node {
                 $this->rootnodes['home']->action->param('redirect', '0');
             }
         }
-        $this->rootnodes['site'] = $this->add_course($SITE);
+        // Modification GIP Récia, Pierre LEJEUNE : affichage de l'item "Pages du Site" uniquement aux administrateurs
+        if(is_siteadmin()){
+            $this->rootnodes['site'] = $this->add_course($SITE);
+            // We always load the frontpage course to ensure it is available without
+            // JavaScript enabled.
+            $this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
+            $this->load_course_sections($SITE, $this->rootnodes['site']);
+        }
+
         $this->rootnodes['myprofile'] = $this->add(get_string('profile'), null, self::TYPE_USER, null, 'myprofile');
         $this->rootnodes['currentcourse'] = $this->add(get_string('currentcourse'), null, self::TYPE_ROOTNODE, null, 'currentcourse');
         $this->rootnodes['mycourses'] = $this->add(
@@ -1449,11 +1459,6 @@ class global_navigation extends navigation_node {
             $this->rootnodes['courses']->hide();
         }
         $this->rootnodes['users'] = $this->add(get_string('users'), null, self::TYPE_ROOTNODE, null, 'users');
-
-        // We always load the frontpage course to ensure it is available without
-        // JavaScript enabled.
-        $this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
-        $this->load_course_sections($SITE, $this->rootnodes['site']);
 
         $course = $this->page->course;
         $this->load_courses_enrolled();
@@ -1486,7 +1491,9 @@ class global_navigation extends navigation_node {
                 break;
             case CONTEXT_COURSECAT :
                 // This is essential, we must load categories.
-                $this->load_all_categories($this->page->context->instanceid, true);
+		// MODIFICATION RECIA -DEBUT
+                $this->load_all_categories($this->page->context->instanceid, false);
+		//MODIFICATION RECIA - FIN
                 break;
             case CONTEXT_BLOCK :
             case CONTEXT_COURSE :
@@ -1647,7 +1654,7 @@ class global_navigation extends navigation_node {
 
         // If the user is not logged in modify the navigation structure as detailed
         // in {@link http://docs.moodle.org/dev/Navigation_2.0_structure}
-        if (!isloggedin()) {
+        if (!isloggedin() && array_key_exists('site', $this->rootnodes) && !is_null($this->rootnodes['site']->children)) {
             $activities = clone($this->rootnodes['site']->children);
             $this->rootnodes['site']->remove();
             $children = clone($this->children);
@@ -1751,9 +1758,10 @@ class global_navigation extends navigation_node {
 
         // If we are going to show all courses AND we are showing categories then
         // to save us repeated DB calls load all of the categories now
-        if ($this->show_categories()) {
-            $this->load_all_categories($toload);
-        }
+        // Modification GIP Récia, Pierre LEJEUNE : Désactivation du chargement de la liste de toutes les catégories
+//        if ($this->show_categories()) {
+//            $this->load_all_categories($toload);
+//        }
 
         // Will be the return of our efforts
         $coursenodes = array();
@@ -2015,15 +2023,31 @@ class global_navigation extends navigation_node {
         }
         $categoriesrs->close();
 
+
         // Now we have an array of categories we need to add them to the navigation.
         while (!empty($categories)) {
             $category = reset($categories);
             if (array_key_exists($category->id, $this->addedcategories)) {
                 // Do nothing
             } else if ($category->parent == '0') {
-                $this->add_category($category, $this->rootnodes['courses']);
-            } else if (array_key_exists($category->parent, $this->addedcategories)) {
                 $this->add_category($category, $this->addedcategories[$category->parent]);
+            } else if (array_key_exists($category->parent, $this->addedcategories)) {
+                // Modification GIP Récia, Pierre LEJEUNE : Limitation des catégories affichées
+                $limit = 20;
+                if (!empty($CFG->navcourselimit)) {
+                    $limit = $CFG->navcourselimit;
+                }
+                $mycourses = enrol_get_my_courses(NULL, 'visible DESC,sortorder ASC', $limit);
+                if (!empty($mycourses)) {
+                    $this->add_category($category, $this->addedcategories[$category->parent]);
+                    foreach ($mycourses as $cours) {
+                        if ($cours->category == $category->id) {
+                            $this->add_category($category, $this->addedcategories[$category->parent]);
+                        }
+                    }
+                } else {
+                    $this->add_category($category, $this->addedcategories[$category->parent]);
+                }
             } else {
                 // This category isn't in the navigation and niether is it's parent (yet).
                 // We need to go through the category path and add all of its components in order.
@@ -4723,6 +4747,17 @@ class settings_navigation extends navigation_node {
             $coursenode->add(get_string('reset'), $url, self::TYPE_SETTING, null, 'reset', new pix_icon('i/return', ''));
         }
 
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | DEBUT | 2013-06-27
+        ////////////////////////////////////////////////
+        // Delete this course
+        if (has_capability('moodle/course:delete', $coursecontext)) {
+            $url = new moodle_url('/course/delete.php', array('id'=>$course->id));
+            $coursenode->add(get_string('delete'), $url, self::TYPE_SETTING, null, null, new pix_icon('t/delete', ''));
+        }
+        ////////////////////////////////////////////////
+        // MODIFICATION RECIA | FIN
+        ////////////////////////////////////////////////
         // Questions
         require_once($CFG->libdir . '/questionlib.php');
         question_extend_settings_navigation($coursenode, $coursecontext)->trim_if_empty();
