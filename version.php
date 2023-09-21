@@ -29,10 +29,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$version  = 2022112804.08;              // 20221128      = branching date YYYYMMDD - do not modify!
+$version  = 2022112805.09;              // 20221128      = branching date YYYYMMDD - do not modify!
                                         //         RR    = release increments - 00 in DEV branches.
                                         //           .XX = incremental changes.
-$release  = '4.1.4+ (Build: 20230728)'; // Human-friendly version name
-$release .= ' - GIP Recia 4.1.4.2';
+$release  = '4.1.5+ (Build: 20230920)'; // Human-friendly version name
+$release .= ' - GIP Recia 4.1.5.1';
 $branch   = '401';                     // This version's branch.
 $maturity = MATURITY_STABLE;             // This version's maturity level.
