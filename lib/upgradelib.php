@@ -2835,3 +2835,44 @@ function check_mod_assignment(environment_results $result): ?environment_results
 
     return null;
 }
+
+/**
+ * Check whether the Oracle database is currently being used and warn if so.
+ *
+ * The Oracle database support will be removed in a future version (4.5) as it is no longer supported by PHP.
+ *
+ * @param environment_results $result object to update, if relevant
+ * @return environment_results|null updated results or null if the current database is not Oracle.
+ *
+ * @see https://tracker.moodle.org/browse/MDL-80166 for further information.
+ */
+function check_oracle_usage(environment_results $result): ?environment_results {
+    global $CFG;
+
+    // Checking database type.
+    if ($CFG->dbtype === 'oci') {
+        $result->setInfo('oracle_database_usage');
+        $result->setFeedbackStr('oracledatabaseinuse');
+        return $result;
+    }
+
+    return null;
+}
+
+/**
+ * Check if asynchronous backups are enabled.
+ *
+ * @param environment_results $result
+ * @return environment_results|null
+ */
+function check_async_backup(environment_results $result): ?environment_results {
+    global $CFG;
+
+    if (!during_initial_install() && empty($CFG->enableasyncbackup)) { // Have to use $CFG as config table may not be available.
+        $result->setInfo('Asynchronous backups disabled');
+        $result->setFeedbackStr('asyncbackupdisabled');
+        return $result;
+    }
+
+    return null;
+}
