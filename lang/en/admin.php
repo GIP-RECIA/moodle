@@ -452,6 +452,7 @@ $string['customusermenuitems'] = 'User menu items';
 $string['datarootsecurityerror'] = '<p><strong>SECURITY WARNING!</strong></p><p>Your dataroot directory is in the wrong location and is exposed to the web. This means that all your private files are available to anyone in the world, and some of them could be used by a cracker to obtain unauthorised administrative access to your site!</p>
 <p>You <em>must</em> move dataroot directory ({$a}) to a new location that is not within your public web directory, and update the <code>$CFG->dataroot</code> setting in your config.php accordingly.</p>';
 $string['datarootsecuritywarning'] = 'Your site configuration might not be secure. Please make sure that your dataroot directory ({$a}) is not directly accessible via web.';
+$string['dbprefixtoolong'] = 'Your site\'s database prefix ($CFG->prefix) is too long ({$a->current} characters). The maximum number of characters allowed is {$a->maximum}.';
 $string['dbsessions'] = 'Use database for session information';
 $string['debug'] = 'Debug messages';
 $string['debugall'] = 'ALL: Show all reasonable PHP debug messages';
@@ -1354,6 +1355,7 @@ $string['unsupportedphpversion73'] = 'PHP version 7.3 and higher are not support
 $string['unsupportedphpversion74'] = 'PHP version 7.4 and higher are not supported.';
 $string['unsupportedphpversion80'] = 'PHP version 8.0 and higher are not supported.';
 $string['unsupportedphpversion81'] = 'PHP version 8.1 and higher are not supported.';
+$string['unsupportedphpversion82'] = 'PHP version 8.2 and higher are not supported.';
 $string['unsuspenduser'] = 'Activate user account';
 $string['updateaccounts'] = 'Update existing accounts';
 $string['updatecomponent'] = 'Update component';
