@@ -33,5 +33,6 @@ $version  = 2022112819.04;              // 20221128      = branching date YYYYMM
                                         //         RR    = release increments - 00 in DEV branches.
                                         //           .XX = incremental changes.
 $release  = '4.1.19+ (Build: 20250711)';    // Human-friendly version name
+$release .= ' - GIP Recia EFPS 4.1.19.1';
 $branch   = '401';                      // This version's branch.
 $maturity = MATURITY_STABLE;            // This version's maturity level.
