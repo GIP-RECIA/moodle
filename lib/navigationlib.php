@@ -1471,9 +1471,12 @@ class global_navigation extends navigation_node {
                 $this->rootnodes['home']->action->param('redirect', '0');
             }
         }
+        $this->rootnodes['site'] = $this->add_course($SITE);
         // Modification GIP Récia, Pierre LEJEUNE : affichage de l'item "Pages du Site" uniquement aux administrateurs
+        // Modification GIP Recia, Loïc Villanné : l'afectation du $this->rootnodes['site'] est sorti du bloc et placé au dessus
+        //  sinon les élèves ne pouvaient plus consulter de cours a partir de la 4.5
+        //  Il faut donc voir si le contenu de ce block est toujours nécessaire.
         if(is_siteadmin()){
-            $this->rootnodes['site'] = $this->add_course($SITE);
             // We always load the frontpage course to ensure it is available without
             // JavaScript enabled.
             $this->add_front_page_course_essentials($this->rootnodes['site'], $SITE);
