@@ -33,5 +33,6 @@ $version  = 2024100712.05;              // 20241007      = branching date YYYYMM
                                         //         RR    = release increments - 00 in DEV branches.
                                         //           .XX = incremental changes.
 $release  = '4.5.12+ (Build: 20260714)';    // Human-friendly version name
+$release .= ' - GIP Recia 4.5.12.1';
 $branch   = '405';                      // This version's branch.
 $maturity = MATURITY_STABLE;            // This version's maturity level.
